@@ -9,6 +9,10 @@
 
 # Step 2 run first level tests (call to another routine)
 # mclapply(RUN_1ST_LEVEL_TESTS, <inputs for RUN_1ST_LEVEL_TESTS>, <options for mclapply>)
+# output table can be created here instead of in RUN_1ST_LEVEL_TESTS if that's easier
+# ignore direction for now in output table
+# need p for sure, would be great to get the test statistic as well (t in this case)
+# ignore networks for now
 
 
 

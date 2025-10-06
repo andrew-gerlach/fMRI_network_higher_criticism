@@ -39,7 +39,7 @@ t_test <- function(data){
   }
   
   
-   return (list(p.values = pvals, t.stats = tstats)))
+   return (list(c(pvals), c(tstats)))
 }
 
 data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest.RDS")

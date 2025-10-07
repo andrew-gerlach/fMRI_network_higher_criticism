@@ -5,11 +5,10 @@
 #      k1 - fraction or number of p values to keep
 #      emp - flag for using variance of empirical distribution
 #      plot - flag to plot summary items
-# Out: p - maximum p value under cutoff
-#      hc - maximum HC statistic
+# Out: hc - maximum HC statistic
 ################################################################################
 
-calc_HC = function(p, alpha, k1, emp, plot, debug) {
+XXX_RUN_2ND_LEVEL_TESTS = function(p, alpha, k1, emp, plot, debug) {
 
     if(missing(debug)) { debug = FALSE }
     # Sort p values in ascending order
@@ -17,7 +16,7 @@ calc_HC = function(p, alpha, k1, emp, plot, debug) {
     p.sorted = sort(p)
     # Determine cutoff
     if(missing(k1)) {
-        print_msg('WARNING! k1 missing from calc_HC')
+        warning("k1 missing from calc_HC")
         k1 = length(p)
         if(missing(alpha)) {
             alpha = 1
@@ -30,7 +29,7 @@ calc_HC = function(p, alpha, k1, emp, plot, debug) {
     }
     p.sorted = p.sorted[1:k1]
 
-    if(debug) { print_msg(sprintf('alpha %0.2f k1 %i emp %s', alpha, k1, emp)) }
+    if(debug) { cat(sprintf("alpha %0.2f k1 %i emp %s\n", alpha, k1, emp)) }
     # Assume variance of theoretical null
     if(missing(emp)) { emp = FALSE }
     if(missing(plot)) { plot = FALSE }

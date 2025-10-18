@@ -1,10 +1,13 @@
-
-#' Run 1st level tests
+#' XXX_RUN_1st_LEVEL_TESTS
 #'
-# ARG: let's not assume that the data frame and fc will come as a single object
-# for input purposes. Also want to keep it more flexible for things like
-# regression and such because most of this will be directly usable for other
-# tests up until the for loop
+#' @param data subject information/subject number (n subject)
+#' @param fc a large 3 dimensional data set that contains the correlation matrix of brain nodes
+#' of each subject(n x 50 x 50) (ADD SPECIFICS LATER)
+#'
+#' @returns a list of of summary statistics about the fc matrices and subject (ADD SPECIFCS LATER)
+#' @export
+#'
+#' @examples
 XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
   
   library(parallel)
@@ -62,6 +65,17 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
   return (list(stats = stats, pvals = pvals))
   
 }
+#' Chunk_data: Used to break down the large data set into chunks to run various tests in
+#' parallel 
+#'
+#' @param data The overall large data set that needs to be broken down
+#' @param feature_cols The names of the columns for chucking
+#' @param chunk_size The number of columns/features per chunk
+#'
+#' @returns Returns the chunked data for the specified size
+#' @export
+#'
+#' @examples
 chunk_data = function(data, feature_cols, chunk_size){
   
   # Subset the data for only the necessary columns
@@ -72,7 +86,7 @@ chunk_data = function(data, feature_cols, chunk_size){
   chunk_index = split(seq_len(n_features), 
                       ceiling(seq_along(feature_cols)/chunk_size))
   
-  # Create the chunks by indx
+  # Create the chunks by index
   chunks = lapply(chunk_index, function(idx) {
     data_subset[, idx, drop = FALSE]
   })

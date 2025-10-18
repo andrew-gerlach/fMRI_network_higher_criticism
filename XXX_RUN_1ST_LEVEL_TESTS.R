@@ -30,24 +30,54 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
   
   # Chunk the data by column (features of the fc matrix)
   feature_cols = names(data %>% select(starts_with("Node")))
+  chunk = chunk_data(data, feature_cols, 100)
+  
+  # Access the groups once to avoid reloading the data
+  groups = data$group
+  
   pvals = numeric(K)
   stats = numeric(K)
   
-  for(i in seq_along(feature_cols)) {
+  
+  results = mclapply(chunk, function(chunk){
     
-    # T-test formula
-    f = formula(paste(feature_cols[i], "~ group"))
-    # Run t-test
-    tt = t.test(f, data)
-    
-    # Extract statistics and values
-    stats[i] = unname(tt$statistic)
-    pvals[i] = tt$p.value
-    
-  }
+    # Runs apply on the columns and finds the stats
+    chunk_stats = apply(chunk,2, function(feature_vals){
+      
+      # Run t-test
+      tt = t.test(feature_vals~groups)
+      c(stat = unname(tt$statistic), pval = tt$p.value)
+    })
+    return(chunk_stats)
+  })
+  
+  results_mat = do.call(cbind, results)
+  
+  # Extract vectors
+  stats = as.numeric(results_mat["stat", ])
+  pvals = as.numeric(results_mat["pval", ])
+  
+  names(stats) =  names(pvals) =  feature_cols
   
   return (list(stats = stats, pvals = pvals))
   
+}
+chunk_data = function(data, feature_cols, chunk_size){
+  
+  # Subset the data for only the necessary columns
+  data_subset = data[ ,feature_cols, drop = FALSE]
+  n_features = length(feature_cols)
+  
+  # Label the chunks by index
+  chunk_index = split(seq_len(n_features), 
+                      ceiling(seq_along(feature_cols)/chunk_size))
+  
+  # Create the chunks by indx
+  chunks = lapply(chunk_index, function(idx) {
+    data_subset[, idx, drop = FALSE]
+  })
+  
+  return(chunks)
 }
 
 data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest.RDS")

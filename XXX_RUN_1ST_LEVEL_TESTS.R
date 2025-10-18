@@ -35,12 +35,6 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
   
   for(i in seq_along(feature_cols)) {
     
-    # ARG: this creates extra variables that we don't need, prefer not to do
-    # that whenever possible
-    # col = feature_cols[i]
-    # y = df[[col]]
-    # x = df$group
-    
     # T-test formula
     f = formula(paste(feature_cols[i], "~ group"))
     # Run t-test

@@ -13,6 +13,16 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
   library(parallel)
   library(dplyr)
   
+  # Number of subjects
+  n = nrow(data)
+  
+  # Number of nodes in FC matrices
+  k = dim(fc)[2]
+  
+  # Error checking
+  if(dim(fc)[1] != n) { stop(sprintf("%i subjects in data, but %i FC matrices provided!", n, dim(fc)[1])) }
+  if(dim(fc)[3] != k) { stop("FC matrices provided are not square!") }
+  
   # Boolean array for upper triangular matrix
   upper = upper.tri(diag(dim(fc)[2]), diag = FALSE)
   # Number of unique entries in upper triangular matrix

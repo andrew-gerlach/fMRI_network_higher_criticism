@@ -19,7 +19,7 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def) {
   M = m * (m + 1) / 2
 
   # error checking
-  if(length(unique(c(first_level_results$node1, first_level_results$node2))) != length(networks)) {
+  if(length(unique(c(first_level_results$node1, first_level_results$node2))) != length(net_def)) {
     stop("The network definition contains a different number of nodes than the first level tests!")
   }
 
@@ -42,17 +42,18 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def) {
 
     for(m2 in m1 : m) {
 
+      i = i + 1
       # Fill in table network definitions
-      second_level_results$network1 = networks[m1]
-      second_level_results$network2 = networks[m2]
+      second_level_results$network1[i] = networks[m1]
+      second_level_results$network2[i] = networks[m2]
       # Extract relevant p values
       p = first_level_results %>%
         filter((network1 == networks[m1] & network2 == networks[m2]) | (network1 == networks[m2] & network2 == networks[m1])) %>%
         pull(p)
       # Calculate number of tests
-      second_level_results$n_tests = length(p)
+      second_level_results$n_tests[i] = length(p)
       # Calculate HC statistic
-      second_level_results$p = XXX_HIGHER_CRITICISM(p, k1=0.5, emp=F)
+      second_level_results$p[i] = XXX_HIGHER_CRITICISM(p, k1=0.5, emp=F)
 
     }
 

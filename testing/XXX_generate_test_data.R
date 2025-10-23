@@ -1,14 +1,14 @@
 # Function for generating test data
-# In:  n - number of subject
+# In:  n - number of subjects
 #      k - number of nodes in parcellation
-#      m - number of networks (not used currently)
-#      mu - effect strength
-#      tau - effect sparsity
+#      net_def - network definition for nodes
+#      mu - effect strength (1 per network pair)
+#      tau - effect sparsity (1 per network pair)
 #      seed - seed for replicability
 # Out: data - data frame of variables
 #      fc - connectivity matrices
 
-XXX_generate_test_data = function(n, k, m, mu, tau, seed) {
+XXX_generate_test_data = function(n, k, net_def, mu, tau, seed) {
   
   # set seed for replicability
   set.seed(seed)
@@ -23,7 +23,7 @@ XXX_generate_test_data = function(n, k, m, mu, tau, seed) {
   # initialize connectivity matrices, stacked by subject
   fc = array(NA, c(n, k, k))
   
-  # generate symmetric matrices
+  # generate random symmetric matrices
   for(i in 1 : n) {
     
     # initialize subject matrix
@@ -43,14 +43,46 @@ XXX_generate_test_data = function(n, k, m, mu, tau, seed) {
 
   }
   
-  # inject sparse, weak signal
-  for(j in 1 : round(tau * K)) {
+  # extract networks
+  networks = unique(net_def)
+  # number of networks
+  m = length(networks)
+  # number of network pairs
+  M = m * (m + 1) / 2
+  
+  net_pair = 0
+  
+  for(i in 1 : m) {
     
-    # random indices
-    idx = sample(1 : k, 2, replace = F)
-    # add signal to group 1 but not group 0
-    fc[, idx[1], idx[2]] = fc[, idx[1], idx[2]] + data$group * mu
-    fc[, idx[2], idx[1]] = fc[, idx[1], idx[2]]
+    for(j in i : m) {
+
+      net_pair = net_pair + 1
+      
+      if(mu[net_pair] == 0) {
+        # skip if no signal in this network pair
+        next
+      } else {
+        # otherwise determine the number of node pairs in network pair
+        if(i == j) {
+          K_net = sum(net_def == networks[i]) * (sum(net_def == networks[j]) - 1) / 2
+        } else {
+          K_net = sum(net_def == networks[i]) * sum(net_def == networks[j])
+        }
+      }
+      
+      # inject sparse/weak signal
+      for(l in 1 : round(tau[net_pair] * K_net)) {
+    
+        # random indices
+        idx1 = sample((1 : k)[which(net_def == networks[i])], 1, replace = F)
+        idx2 = sample((1 : k)[which(net_def == networks[j])], 1, replace = F)
+        # add signal to group 1 but not group 0
+        fc[, idx1, idx2] = fc[, idx1, idx2] + data$group * mu[net_pair]
+        fc[, idx2, idx1] = fc[, idx1, idx2]
+        
+      }
+      
+    }
     
   }
   

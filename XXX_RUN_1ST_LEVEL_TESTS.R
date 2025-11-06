@@ -8,9 +8,8 @@
 #' @export
 #'
 #' @examples
-XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
+XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   
-  library(parallel)
   library(dplyr)
   
   # Boolean array for upper triangular matrix
@@ -31,9 +30,8 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
   # Clear memory intensive data that's no longer needed
   rm(flat_fc)
   
-  # Chunk the data by column (features of the fc matrix)
+  
   feature_cols = names(data %>% select(starts_with("Node")))
-  chunk = chunk_data(data, feature_cols, 100)
   
   # Access the groups once to avoid reloading the data
   groups = data$group
@@ -41,18 +39,63 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
   pvals = numeric(K)
   stats = numeric(K)
   
+  net_indices =  split(seq_along(net_def), net_def)
   
-  results = mclapply(chunk, function(chunk){
+  net1_i = net_indices[[net1]]
+  net2_i = net_indices[[net2]]
+  
+  results = lapply(feature_cols, function(colname) {
+    feature_vals = data[[colname]]
     
-    # Runs apply on the columns and finds the stats
-    chunk_stats = apply(chunk,2, function(feature_vals){
+    test = switch(test_type,
+                  # 1: t-test
+                  `1` = try(t.test(feature_vals ~ groups, data = data), silent = TRUE),
+                  
+                  # 2: linear model
+                  `2` = try(summary(lm(feature_vals ~ groups, data = data)), silent = TRUE),
+                  
+                  # 3: ANOVA
+                  `3` = try(summary(aov(feature_vals ~ groups, data = data)), silent = TRUE),
+                  
+                  stop("Invalid test_type")
+    )
+    
+    # Extract statistic and p-value safely depending on object type
+    if (inherits(test, "try-error")) {
+      return(c(stat = NA_real_, pval = NA_real_))
+    }
+    
+    if (test_type == 1) {
+      # t-test
+      stat = unname(test$statistic)
+      pval = test$p.value
       
-      # Run t-test
-      tt = t.test(feature_vals~groups)
-      c(stat = unname(tt$statistic), pval = tt$p.value)
-    })
-    return(chunk_stats)
+    } else if (test_type == 2) {
+      # lm() summary — use coefficient for 'groups' term (2nd row)
+      coef_table = test$coefficients
+      if (nrow(coef_table) >= 2) {
+        stat = coef_table[2, "t value"]
+        pval = coef_table[2, "Pr(>|t|)"]
+      } else {
+        stat = NA_real_
+        pval = NA_real_
+      }
+      
+    } else if (test_type == 3) {
+      # ANOVA summary — extract F and p-value
+      aov_table = test[[1]]
+      if (nrow(aov_table) >= 1) {
+        stat = aov_table[1, "F value"]
+        pval = aov_table[1, "Pr(>F)"]
+      } else {
+        stat = NA_real_
+        pval = NA_real_
+      }
+    }
+    
+    return(c(stat = stat, pval = pval))
   })
+  
   
   results_mat = do.call(cbind, results)
   
@@ -62,7 +105,14 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc){
   
   names(stats) =  names(pvals) =  feature_cols
   
-  return (list(stats = stats, pvals = pvals))
+  node_stats = as.data.frame(list(stats = stats, pvals = pvals))
+  
+  target1 = paste0("Node", net1_i, "_Node", net2_i)
+  target2 = paste0("Node", net2_i, "_Node", net1_i)
+  
+  net_stats = node_stats[rownames(node_stats) %in% c(target1, target2), ]
+  
+  return(net_stats)
   
 }
 #' Chunk_data: Used to break down the large data set into chunks to run various tests in
@@ -94,6 +144,6 @@ chunk_data = function(data, feature_cols, chunk_size){
   return(chunks)
 }
 
-data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest.RDS")
-q = XXX_RUN_1ST_LEVEL_TESTS(data$data, data$fc)
+data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest_3network.RDS")
+q = XXX_RUN_1ST_LEVEL_TESTS(data$data, data$fc, 1, A, B, net_def)
 q

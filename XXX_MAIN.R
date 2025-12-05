@@ -58,7 +58,7 @@ if(is.null(fc)) { fc = XXX_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name) 
 # ignore direction for now in output table
 # need p for sure, would be great to get the test statistic as well (t in this case)
 # ignore networks for now
-first_level_results = XXX_RUN_1ST_LEVEL_TESTS(data, fc)
+first_level_results = XXX_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form)
 
 
 ### Step 3 calculate network level HC statistics

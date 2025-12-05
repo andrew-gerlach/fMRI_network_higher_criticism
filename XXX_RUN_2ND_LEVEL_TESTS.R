@@ -1,8 +1,9 @@
 #' XXX_RUN_2ND_LEVEL_TESTS
 #'
 #' @param first_level_results data frame containing first level test results with columns for
-#' node1, node2, direction of test, test statistic, and p value
-#' @param net_def vector defining which node
+#' node1, node2, direction of test, test statistic, and p value (n rows)
+#' @param net_def vector defining which network each node belongs to (length k)
+#' @param hc_opts options for higher criticism
 #'
 #' @returns second_level_results date frame containing second level test results with columns
 #' for network1, network2, direction of test, HC statistic, and p value
@@ -10,7 +11,13 @@
 #'
 #' @examples
 
-XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def) {
+XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
+
+  # set default higher criticism options
+  # NOTE: deprecate this eventually (handle in main routine)
+  if(missing(hc_opts)) {
+    hc_opts = list(alpha=NULL, k1=0.5, emp=F, plot=T)
+  }
 
   # pull network info from net_def
   networks = unique(net_def)
@@ -37,6 +44,9 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def) {
 
   # table row index
   i = 0
+  # initialize plot storage
+  hc_plots = list()
+
   # Loop through network pairs
   for(m1 in 1 : m) {
 
@@ -53,13 +63,20 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def) {
       # Calculate number of tests
       second_level_results$n_tests[i] = length(p)
       # Calculate HC statistic
-      second_level_results$p[i] = XXX_HIGHER_CRITICISM(p, k1=0.5, emp=F)
+      tmp = XXX_HIGHER_CRITICISM(p=p,
+                                 alpha=hc_opts$alpha,
+                                 k1=hc_opts$k1,
+                                 emp=hc_opts$emp,
+                                 plot=hc_opts$plot)
+      second_level_results$HC[i] = tmp$hc
+      hc_plots[[i]] = tmp$plot
 
     }
 
   }
 
-  return(second_level_results)
+  return(list(second_level_results=second_level_results,
+              hc_plot=hc_plots))
 
 }
 

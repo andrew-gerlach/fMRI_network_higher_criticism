@@ -100,50 +100,39 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   results_mat = do.call(cbind, results)
   
   # Extract vectors
+  
   stats = as.numeric(results_mat["stat", ])
   pvals = as.numeric(results_mat["pval", ])
   
-  names(stats) =  names(pvals) =  feature_cols
+  names(stats) = names(pvals) = feature_cols
   
-  node_stats = as.data.frame(list(stats = stats, pvals = pvals))
+  node_stats = data.frame(stats = stats, pvals = pvals)
   
-  target1 = paste0("Node", net1_i, "_Node", net2_i)
-  target2 = paste0("Node", net2_i, "_Node", net1_i)
+  split_names = do.call(rbind, strsplit(rownames(node_stats), "_"))
+  node_stats$first_node = as.integer(gsub("Node", "", split_names[, 1]))
+  node_stats$second_node = as.integer(gsub("Node", "", split_names[, 2]))
   
-  net_stats = node_stats[rownames(node_stats) %in% c(target1, target2), ]
+  if (net1 == net2) {
+    # Within-network connections: both nodes must be in the same network
+    net_stats = node_stats[
+      node_stats$first_node_idx %in% net1_i & 
+        node_stats$second_node_idx %in% net1_i, 
+    ]
+  } else {
+    # Between-network connections: one node in each network
+    net_stats = node_stats[
+      (node_stats$first_node_idx %in% net1_i & node_stats$second_node_idx %in% net2_i) |
+        (node_stats$first_node_idx %in% net2_i & node_stats$second_node_idx %in% net1_i),
+    ]
+  }
+  
+  net_stats$first_node_idx = NULL
+  net_stats$second_node_idx = NULL
   
   return(net_stats)
   
 }
-#' Chunk_data: Used to break down the large data set into chunks to run various tests in
-#' parallel 
-#'
-#' @param data The overall large data set that needs to be broken down
-#' @param feature_cols The names of the columns for chucking
-#' @param chunk_size The number of columns/features per chunk
-#'
-#' @returns Returns the chunked data for the specified size
-#' @export
-#'
-#' @examples
-chunk_data = function(data, feature_cols, chunk_size){
-  
-  # Subset the data for only the necessary columns
-  data_subset = data[ ,feature_cols, drop = FALSE]
-  n_features = length(feature_cols)
-  
-  # Label the chunks by index
-  chunk_index = split(seq_len(n_features), 
-                      ceiling(seq_along(feature_cols)/chunk_size))
-  
-  # Create the chunks by index
-  chunks = lapply(chunk_index, function(idx) {
-    data_subset[, idx, drop = FALSE]
-  })
-  
-  return(chunks)
-}
 
-data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest_3network.RDS")
-q = XXX_RUN_1ST_LEVEL_TESTS(data$data, data$fc, 1, A, B, net_def)
-q
+data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest.RDS")
+q = XXX_RUN_1ST_LEVEL_TESTS(data$data, data$fc, 1, "A", "B", net_def)
+XXX_HIGHER_CRITICISM(q$pvals, k1 = 0.5, emp = F)

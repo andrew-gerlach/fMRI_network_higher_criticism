@@ -11,6 +11,7 @@
 XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   
   library(dplyr)
+  library(parallel)
   
   # Boolean array for upper triangular matrix
   upper = upper.tri(diag(dim(fc)[2]), diag = FALSE)
@@ -30,7 +31,6 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   # Clear memory intensive data that's no longer needed
   rm(flat_fc)
   
-  
   feature_cols = names(data %>% select(starts_with("Node")))
   
   # Access the groups once to avoid reloading the data
@@ -44,18 +44,21 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   net1_i = net_indices[[net1]]
   net2_i = net_indices[[net2]]
   
-  results = lapply(feature_cols, function(colname) {
+  cl = makeCluster(detectCores()-1)
+  clusterExport(cl, c("data", "groups", "test_type"), envir = environment())
+  
+  results = parLapply(cl,feature_cols, function(colname) {
     feature_vals = data[[colname]]
     
-    test = switch(test_type,
+    test = switch(as.character(test_type),
                   # 1: t-test
-                  `1` = try(t.test(feature_vals ~ groups, data = data), silent = TRUE),
+                  "1" = try(t.test(feature_vals ~ groups, data = data), silent = TRUE),
                   
                   # 2: linear model
-                  `2` = try(summary(lm(feature_vals ~ groups, data = data)), silent = TRUE),
+                  "2" = try(summary(lm(feature_vals ~ groups, data = data)), silent = TRUE),
                   
                   # 3: ANOVA
-                  `3` = try(summary(aov(feature_vals ~ groups, data = data)), silent = TRUE),
+                  "3" = try(summary(aov(feature_vals ~ groups, data = data)), silent = TRUE),
                   
                   stop("Invalid test_type")
     )
@@ -96,43 +99,42 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
     return(c(stat = stat, pval = pval))
   })
   
-  
-  results_mat = do.call(cbind, results)
+  stopCluster(cl)
   
   # Extract vectors
-  
-  stats = as.numeric(results_mat["stat", ])
-  pvals = as.numeric(results_mat["pval", ])
+  stats = sapply(results, function(x) x["stat"])
+  pvals = sapply(results, function(x) x["pval"])
   
   names(stats) = names(pvals) = feature_cols
   
   node_stats = data.frame(stats = stats, pvals = pvals)
   
   split_names = do.call(rbind, strsplit(rownames(node_stats), "_"))
-  node_stats$first_node = as.integer(gsub("Node", "", split_names[, 1]))
+  node_stats$first_node  = as.integer(gsub("Node", "", split_names[, 1]))
   node_stats$second_node = as.integer(gsub("Node", "", split_names[, 2]))
   
+  net1_i = as.integer(net1_i)
+  net2_i = as.integer(net2_i)
+  
   if (net1 == net2) {
-    # Within-network connections: both nodes must be in the same network
+    
     net_stats = node_stats[
-      node_stats$first_node_idx %in% net1_i & 
-        node_stats$second_node_idx %in% net1_i, 
+      node_stats$first_node %in% net1_i &
+        node_stats$second_node %in% net1_i,
     ]
+    
   } else {
-    # Between-network connections: one node in each network
+    
     net_stats = node_stats[
-      (node_stats$first_node_idx %in% net1_i & node_stats$second_node_idx %in% net2_i) |
-        (node_stats$first_node_idx %in% net2_i & node_stats$second_node_idx %in% net1_i),
+      (node_stats$first_node %in% net1_i & node_stats$second_node %in% net2_i) |
+        (node_stats$first_node %in% net2_i & node_stats$second_node %in% net1_i),
     ]
+    
   }
   
-  net_stats$first_node_idx = NULL
-  net_stats$second_node_idx = NULL
-  
   return(net_stats)
-  
 }
 
-data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest.RDS")
+data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest_3network.RDS")
 q = XXX_RUN_1ST_LEVEL_TESTS(data$data, data$fc, 1, "A", "B", net_def)
 XXX_HIGHER_CRITICISM(q$pvals, k1 = 0.5, emp = F)

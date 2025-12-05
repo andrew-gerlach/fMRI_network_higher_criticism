@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
+XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form){
   
   library(dplyr)
   library(parallel)
@@ -43,8 +43,6 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   
   feature_cols = names(data %>% select(starts_with("Node")))
   
-  # Access the groups once to avoid reloading the data
-  groups = data$group
   
   pvals = numeric(K)
   stats = numeric(K)
@@ -55,14 +53,15 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   net2_i = net_indices[[net2]]
   
   cl = makeCluster(detectCores()-1)
-  clusterExport(cl, c("data", "groups", "test_type"), envir = environment())
+  clusterExport(cl, c("data", "test_type", "form", "str_replace"), envir = environment())
   
   results = parLapply(cl,feature_cols, function(colname) {
-    feature_vals = data[[colname]]
+    
+    formula = as.formula(str_replace(form, "fc", colname))
     
     test = switch(as.character(test_type),
                   # 1: t-test
-                  "1" = try(t.test(feature_vals ~ groups, data = data), silent = TRUE),
+                  "1" = try(t.test(formula, data = data), silent = TRUE),
                   
                   # 2: linear model
                   "2" = try(summary(lm(feature_vals ~ groups, data = data)), silent = TRUE),
@@ -123,26 +122,8 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   node_stats$first_node  = as.integer(gsub("Node", "", split_names[, 1]))
   node_stats$second_node = as.integer(gsub("Node", "", split_names[, 2]))
   
-  net1_i = as.integer(net1_i)
-  net2_i = as.integer(net2_i)
   
-  if (net1 == net2) {
-    
-    net_stats = node_stats[
-      node_stats$first_node %in% net1_i &
-        node_stats$second_node %in% net1_i,
-    ]
-    
-  } else {
-    
-    net_stats = node_stats[
-      (node_stats$first_node %in% net1_i & node_stats$second_node %in% net2_i) |
-        (node_stats$first_node %in% net2_i & node_stats$second_node %in% net1_i),
-    ]
-    
-  }
-  
-  return(net_stats)
+  return(node_stats)
 }
 
 data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest_3network.RDS")

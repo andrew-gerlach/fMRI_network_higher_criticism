@@ -16,11 +16,11 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
   # set default higher criticism options
   # NOTE: deprecate this eventually (handle in main routine)
   if(missing(hc_opts)) {
-    hc_opts = list(alpha=NULL, k1=0.5, emp=F, plot=T)
+    hc_opts = list(alpha=NULL, k1=0.5, emp=F, nsim=1E5, plot=T)
   }
 
   # pull network info from net_def
-  networks = unique(net_def)
+  networks = unique(net_def[!is.na(net_def)])
   m = length(networks)
   # number of unique network pairs
   M = m * (m + 1) / 2
@@ -35,15 +35,15 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
   first_level_results$network2 = net_def[first_level_results$node2]
 
   # initialize table
-  second_level_results = data.frame(network1=character(M),
-                                    network2=character(M),
-                                    direction=character(M),
-                                    n_tests=numeric(M),
-                                    HC=numeric(M),
-                                    p=numeric(M))
+  second_level_results = data.frame(network1=character(2 * M),
+                                    network2=character(2 * M),
+                                    direction=rep(c("low", "high"), M),
+                                    n_tests=numeric(2 * M),
+                                    HC=numeric(2 * M),
+                                    p=numeric(2 * M))
 
   # table row index
-  i = 0
+  i = -1
   # initialize plot storage
   hc_plots = list()
 
@@ -52,24 +52,44 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
 
     for(m2 in m1 : m) {
 
-      i = i + 1
+      i = i + 2
+      hc_plots[[(i + 1) / 2]] = list()
       # Fill in table network definitions
-      second_level_results$network1[i] = networks[m1]
-      second_level_results$network2[i] = networks[m2]
+      second_level_results$network1[i : (i+1)] = networks[m1]
+      second_level_results$network2[i : (i+1)] = networks[m2]
       # Extract relevant p values
-      p = first_level_results %>%
+      p_low = first_level_results %>%
         filter((network1 == networks[m1] & network2 == networks[m2]) | (network1 == networks[m2] & network2 == networks[m1])) %>%
-        pull(p)
+        pull(p_low)
+      p_high = first_level_results %>%
+        filter((network1 == networks[m1] & network2 == networks[m2]) | (network1 == networks[m2] & network2 == networks[m1])) %>%
+        pull(p_high)
       # Calculate number of tests
-      second_level_results$n_tests[i] = length(p)
-      # Calculate HC statistic
-      tmp = XXX_HIGHER_CRITICISM(p=p,
+      second_level_results$n_tests[i : (i+1)] = length(p_low)
+      # Calculate HC statistic for low direction
+      tmp = XXX_HIGHER_CRITICISM(p=p_low,
                                  alpha=hc_opts$alpha,
                                  k1=hc_opts$k1,
                                  emp=hc_opts$emp,
                                  plot=hc_opts$plot)
       second_level_results$HC[i] = tmp$hc
-      hc_plots[[i]] = tmp$plot
+      hc_plots[[(i + 1) / 2]][["low"]] = tmp$plot
+      # Calculate HC statistic for high direction
+      tmp = XXX_HIGHER_CRITICISM(p=p_high,
+                                 alpha=hc_opts$alpha,
+                                 k1=hc_opts$k1,
+                                 emp=hc_opts$emp,
+                                 plot=hc_opts$plot)
+      second_level_results$HC[i + 1] = tmp$hc
+      # Calculate p values for HC
+      second_level_results$p[i : (i + 1)] = XXX_CALC_HC_P_VALUE(
+        second_level_results$HC[i : (i + 1)],
+        length(p_low),
+        n_sim=hc_opts$nsim,
+        alpha=hc_opts$alpha,
+        k1=hc_opts$k1,
+        emp=hc_opts$emp)
+      hc_plots[[(i + 1) / 2]][["high"]] = tmp$plot
 
     }
 

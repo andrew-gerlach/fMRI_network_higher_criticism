@@ -9,7 +9,8 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form) {
                                    node2=numeric(K),
                                    direction=character(K),
                                    test_statistic=numeric(K),
-                                   p=numeric(K))
+                                   p_low=numeric(K),
+                                   p_high=numeric(K))
   
   idx = 0
   for(i in 1 : (k - 1)) {
@@ -29,14 +30,16 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form) {
         # one sample t test
         mod = t.test(data$fc)
         first_level_results$test_statistic[idx] = mod$statistic
-        first_level_results$p[idx] = mod$p.value
+        first_level_results$p_low[idx] = pt(mod$statistic, mod$parameter)
+        first_level_results$p_high[idx] = pt(-mod$statistic, mod$parameter)
         
       } else if(test_type == "t.two") {
         
         # two sample t test
         mod = t.test(form, data)
         first_level_results$test_statistic[idx] = mod$statistic
-        first_level_results$p[idx] = mod$p.value
+        first_level_results$p_low[idx] = pt(mod$statistic, mod$parameter)
+        first_level_results$p_high[idx] = pt(-mod$statistic, mod$parameter)
         
       } else if(test_type == "anova") {
         
@@ -46,8 +49,11 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form) {
         
         # linear regression
         mod = lm(form, data)
-        first_level_results$test_statistic[idx] = mod$statistic
-        first_level_results$p[idx] = mod$p.value
+        coefs = coef(summary(mod))
+        # TODO: CANNOT ASSUME THIS INDEX!
+        first_level_results$test_statistic[idx] = coefs[2, 3]
+        first_level_results$p_low[idx] = pt(coefs[2, 3], mod$df.residual)
+        first_level_results$p_high[idx] = pt(-coefs[2, 3], mod$df.residual)
         
       } else {
         stop(paste("Test type", test_type, "is not supported!"))

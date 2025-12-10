@@ -28,14 +28,14 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form) {
         
         # one sample t test
         mod = t.test(data$fc)
-        first_level_results$test_statistic = mod$statistic
+        first_level_results$test_statistic[idx] = mod$statistic
         first_level_results$p[idx] = mod$p.value
         
       } else if(test_type == "t.two") {
         
         # two sample t test
         mod = t.test(form, data)
-        first_level_results$test_statistic = mod$statistic
+        first_level_results$test_statistic[idx] = mod$statistic
         first_level_results$p[idx] = mod$p.value
         
       } else if(test_type == "anova") {
@@ -45,6 +45,9 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form) {
       } else if(test_type == "regression") {
         
         # linear regression
+        mod = lm(form, data)
+        first_level_results$test_statistic[idx] = mod$statistic
+        first_level_results$p[idx] = mod$p.value
         
       } else {
         stop(paste("Test type", test_type, "is not supported!"))

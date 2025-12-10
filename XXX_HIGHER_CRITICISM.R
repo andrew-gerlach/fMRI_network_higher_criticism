@@ -1,5 +1,5 @@
 ################################################################################
-# calc_HC calculates the higher criticism statistic on a set of p values
+# XXX_HIGHER_CRITICISM calculates the higher criticism statistic on a set of p values
 # In:  p - p-values to be highly criticized
 #      alpha - absolute cutoff for p values considered for HC
 #      k1 - fraction or number of p values to keep
@@ -7,6 +7,8 @@
 #      plot - flag to plot summary items
 # Out: hc - maximum HC statistic
 ################################################################################
+
+# TODO: add option for not excluding low p values
 
 XXX_HIGHER_CRITICISM = function(p, alpha, k1, emp, plot, debug) {
 
@@ -22,15 +24,14 @@ XXX_HIGHER_CRITICISM = function(p, alpha, k1, emp, plot, debug) {
 
   # Determine cutoff
   if(missing(k1)) {
-    warning("k1 missing from calc_HC")
     k1 = length(p)
-    if(missing(alpha)) {
+    if(is.null(alpha)) {
       alpha = 1
     } else {
       k1 = max(which(p_sorted < alpha))
     }
   } else {
-    if(missing(alpha)) { alpha = 1 }
+    if(is.null(alpha)) { alpha = 1 }
     if(k1 <= 1) { k1 = floor(k1 * length(p)) }
   }
   p_sorted = p_sorted[1:k1]

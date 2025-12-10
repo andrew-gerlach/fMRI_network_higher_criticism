@@ -20,6 +20,8 @@ XXX_RETRIEVE_FC_MATRICES = function(data, fc_col_name, fc_obj_name) {
     } else if(fc_fn_type == "rdata" | fc_fn_type == "rda") {
       fc_mat = load(fc_fun)[[fc_obj_name]]
     } else if(fc_fn_type == "mat") {
+      # for some reason underscores are converted to periods for Matlab objects
+      fc_obj_name = str_replace_all(fc_obj_name, "_", ".")
       fc_mat = readMat(fc_fn)[[fc_obj_name]]
     } else {
       # TODO: Add support for Python

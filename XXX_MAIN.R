@@ -4,6 +4,8 @@
 #' connectomes using higher criticism
 #'
 #' @param data data frame containing subject level variables (n rows)
+#' @param test_type description of statistical test type (string)
+#' @param from formula for statistical test (string, formula)
 #' @param fc functional connectivity matrices (3D array, n x k x k)
 #' @param fc_col_name column name in data with subject level FC files (string)
 #' @param fc_obj_name name of FC matrix object in storage structure (string)
@@ -12,9 +14,16 @@
 #' @param emp HC control parameter (optional, boolean)
 #' @param plot flag to return HC plots (optional, boolean)
 
+XXX_MAIN = function(data, test_type, form, fc, fc_col_name, fc_obj_name, alpha, k1, emp, plot) {
+
 # packages: tidyverse, tools, readxl, R.matlab
+require(tidyverse)
+require(tools)
+require(readxl)
+require(R.matlab)
 
 ### Step 0 process input
+if(!is_formula(form)) { form = as.formula(form) }
 
 # Higher Criticism options
 if(missing(alpha)) { alpha = NULL }
@@ -49,8 +58,8 @@ if(!is.data.frame(data)) {
 ### Step 1a convert test information to a formula
 
 ### Step 1b load fc data into array if needed
-if(is.missing(fc_obj_name)) {fc_obj_name = NULL }
-if(is.null(fc)) { fc = XXX_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name) }
+if(missing(fc_obj_name)) {fc_obj_name = NULL }
+if(missing(fc)) { fc = XXX_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name) }
 
 ### Step 2 run first level tests (call to another routine)
 # mclapply(RUN_1ST_LEVEL_TESTS, <inputs for RUN_1ST_LEVEL_TESTS>, <options for mclapply>)
@@ -60,8 +69,11 @@ if(is.null(fc)) { fc = XXX_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name) 
 # ignore networks for now
 first_level_results = XXX_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form)
 
-
 ### Step 3 calculate network level HC statistics
-tmp = XXX_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_options)
+tmp = XXX_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_opts)
 second_level_results = tmp$second_level_results
 hc_plots = tmp$hc_plots
+
+return(second_level_results)
+
+}

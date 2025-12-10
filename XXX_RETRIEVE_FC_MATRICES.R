@@ -27,6 +27,8 @@ XXX_RETRIEVE_FC_MATRICES = function(data, fc_col_name, fc_obj_name) {
       # TODO: Add support for Python
       stop("The FC file type is not supported, please provide a .csv, .rds, .rdata, .rda, or .mat file")
     }
+  } else {
+    stop("Cannot find the first FC file! Please ensure the path is correct and the file exists.")
   }
   
   # extract size and basic checks

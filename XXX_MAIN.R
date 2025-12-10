@@ -11,12 +11,14 @@
 #' @param fc functional connectivity matrices (optional, 3D array, n x k x k)
 #' @param fc_col_name column name in data with subject level FC files (optional, string)
 #' @param fc_obj_name name of FC matrix object in storage structure (optional, string)
-#' @param alpha HC control parameter (optional, numeric in (0, 1))
-#' @param k1 HC control parameter (optional, numeric in (0, 1))
-#' @param emp HC control parameter (optional, boolean)
+#' @param alpha HC control parameter for p value cutoff (optional, numeric in (0, 1))
+#' @param k1 HC control parameter for fractional cutoff (optional, numeric in (0, 1))
+#' @param emp HC control parameter for using empirical variance (optional, boolean)
+#' @param nsim HC control parameter for number of simulations in p value calculation (optional, numeric)
 #' @param plot flag to return HC plots (optional, boolean)
+#' @param seed random seed for reproducibility
 
-XXX_MAIN = function(data, test_type, form, net_def, net_def_col, fc, fc_col_name, fc_obj_name, alpha, k1, emp, plot) {
+XXX_MAIN = function(data, test_type, form, net_def, net_def_col, fc, fc_col_name, fc_obj_name, alpha, k1, emp, nsim, plot, seed) {
 
 # packages: tidyverse, tools, readxl, R.matlab
 require(tidyverse)
@@ -24,17 +26,22 @@ require(tools)
 require(readxl)
 require(R.matlab)
 
+# Set seed if applied
+if(!missing(seed)) { set.seed(seed) }
+  
 ### Step 0 process input
-if(!is_formula(form)) { form = as.formula(form) }
+if(!is_formula(form) & !is.null(form)) { form = as.formula(form) }
 
 # Higher Criticism options
 if(missing(alpha)) { alpha = NULL }
 if(missing(k1)) { if(is.null(alpha)) { k1 = 0.5 } else { k1 = NULL } }
 if(missing(emp)) { emp = T }
+if(missing(nsim)) { nsim = 1E5 }
 if(missing(plot)) { plot = T }
 hc_opts = list(alpha = alpha,
                k1 = k1,
                emp = emp,
+               nsim = nsim,
                plot = plot)
 
 # Read in data file if needed

@@ -16,7 +16,7 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
   # set default higher criticism options
   # NOTE: deprecate this eventually (handle in main routine)
   if(missing(hc_opts)) {
-    hc_opts = list(alpha=NULL, k1=0.5, emp=F, nsim=1E5, plot=T)
+    hc_opts = list(k1=0.5, emp=F, nsim=1E5, plot=T)
   }
 
   # pull network info from net_def
@@ -68,7 +68,6 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
       second_level_results$n_tests[i : (i+1)] = length(p_low)
       # Calculate HC statistic for low direction
       tmp = XXX_HIGHER_CRITICISM(p=p_low,
-                                 alpha=hc_opts$alpha,
                                  k1=hc_opts$k1,
                                  emp=hc_opts$emp,
                                  plot=hc_opts$plot)
@@ -76,20 +75,24 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
       hc_plots[[(i + 1) / 2]][["low"]] = tmp$plot
       # Calculate HC statistic for high direction
       tmp = XXX_HIGHER_CRITICISM(p=p_high,
-                                 alpha=hc_opts$alpha,
                                  k1=hc_opts$k1,
                                  emp=hc_opts$emp,
                                  plot=hc_opts$plot)
       second_level_results$HC[i + 1] = tmp$hc
       # Calculate p values for HC
-      second_level_results$p[i : (i + 1)] = XXX_CALC_HC_P_VALUE(
+      tmp = XXX_CALC_HC_P_VALUE(
         second_level_results$HC[i : (i + 1)],
         length(p_low),
         n_sim=hc_opts$nsim,
-        alpha=hc_opts$alpha,
         k1=hc_opts$k1,
         emp=hc_opts$emp)
-      hc_plots[[(i + 1) / 2]][["high"]] = tmp$plot
+      second_level_results$p[i : (i + 1)] = tmp$p
+      hc_plots[[(i + 1) / 2]][["high"]] = tmp$plot +
+        geom_line(data=data.frame(x=c(0, 1),
+                                  y=rep(tmp$hc_crit, 2)),
+                  mapping=aes(x, y),
+                  color="red",
+                  size=2)
 
     }
 

@@ -113,26 +113,7 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
   node_stats$first_node  = as.integer(gsub("Node", "", split_names[, 1]))
   node_stats$second_node = as.integer(gsub("Node", "", split_names[, 2]))
   
-  net1_i = as.integer(net1_i)
-  net2_i = as.integer(net2_i)
-  
-  if (net1 == net2) {
-    
-    net_stats = node_stats[
-      node_stats$first_node %in% net1_i &
-        node_stats$second_node %in% net1_i,
-    ]
-    
-  } else {
-    
-    net_stats = node_stats[
-      (node_stats$first_node %in% net1_i & node_stats$second_node %in% net2_i) |
-        (node_stats$first_node %in% net2_i & node_stats$second_node %in% net1_i),
-    ]
-    
-  }
-  
-  return(net_stats)
+  return(node_stats)
 }
 
 data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest_3network.RDS")

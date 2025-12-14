@@ -1,4 +1,0 @@
-"0","cols = c('dism1990', 'herf', 'lenper', 'povrate_w', 'povrate_b', 'area1910',"
-"0","         'count1910', 'ethseg10', 'ethiso10', 'black1910', 'passpc', 'black1920',"
-"0","         'lfp1920', 'incseg', 'pctbk1990', 'manshr', 'pop1990')"
-"0","df = df%>% select(cols)"

@@ -1,9 +1,0 @@
-"0","herf = summary(df$herf)"
-"0","lenper = summary(df$lenper)"
-"0","povrate_w = summary(df$povrate_w)"
-"0","povrate_b = summary(df$povrate_b)"
-"0",""
-"0","stargazer(herf, lenper, povrate_w, povrate_b, type =""latex"")"
-"2","Error in objects[[i]]$zelig.call : 
-  $ operator is invalid for atomic vectors
-"

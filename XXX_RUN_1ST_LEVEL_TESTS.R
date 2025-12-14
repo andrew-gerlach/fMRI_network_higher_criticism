@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
+XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type){
   
   library(dplyr)
   library(parallel)
@@ -127,5 +127,5 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, net1, net2, net_def){
 }
 
 data = readRDS("C:/Users/arvin/Documents/fMRI_network_higher_criticism/testing/testdata_ttest_3network.RDS")
-q = XXX_RUN_1ST_LEVEL_TESTS(data$data, data$fc, 1, "A", "B", net_def)
+q = XXX_RUN_1ST_LEVEL_TESTS(data$data, data$fc, 1)
 XXX_HIGHER_CRITICISM(q$pvals, k1 = 0.5, emp = F)

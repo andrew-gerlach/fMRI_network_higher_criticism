@@ -8,56 +8,56 @@
 # Out: data - data frame of variables
 #      fc - connectivity matrices
 
-XXX_generate_test_data = function(n, k, net_def, mu, tau, seed) {
-  
+fCOuNT_generate_test_data = function(n, k, net_def, mu, tau, seed) {
+
   # set seed for replicability
   set.seed(seed)
-  
+
   # data frame with subject number and 2 groups
   data = data.frame(subj = factor(1 : n),
                     group = rep(0 : 1, each = n / 2))
-  
+
   # number of unique entries
   K = k * (k - 1) / 2
-  
+
   # initialize connectivity matrices, stacked by subject
   fc = array(NA, c(n, k, k))
-  
+
   # generate random symmetric matrices
   for(i in 1 : n) {
-    
+
     # initialize subject matrix
     mat = matrix(0, k, k)
-    
-    # random values for upper triangle   
+
+    # random values for upper triangle
     mat[upper.tri(mat)] = rnorm(K)
-    
+
     # mirror to lower triangle
     mat = mat + t(mat)
-    
+
     # Set diagonal to one
     diag(mat) = 1
-    
+
     # Store in stacked array
     fc[i, , ] = mat
 
   }
-  
+
   # extract networks
   networks = unique(net_def)
   # number of networks
   m = length(networks)
   # number of network pairs
   M = m * (m + 1) / 2
-  
+
   net_pair = 0
-  
+
   for(i in 1 : m) {
-    
+
     for(j in i : m) {
 
       net_pair = net_pair + 1
-      
+
       if(mu[net_pair] == 0) {
         # skip if no signal in this network pair
         next
@@ -69,26 +69,26 @@ XXX_generate_test_data = function(n, k, net_def, mu, tau, seed) {
           K_net = sum(net_def == networks[i]) * sum(net_def == networks[j])
         }
       }
-      
+
       # inject sparse/weak signal
       for(l in 1 : round(tau[net_pair] * K_net)) {
-    
+
         # random indices
         idx1 = sample((1 : k)[which(net_def == networks[i])], 1, replace = F)
         idx2 = sample((1 : k)[which(net_def == networks[j])], 1, replace = F)
         # add signal to group 1 but not group 0
         fc[, idx1, idx2] = fc[, idx1, idx2] + data$group * mu[net_pair]
         fc[, idx2, idx1] = fc[, idx1, idx2]
-        
+
       }
-      
+
     }
-    
+
   }
-  
+
   # set group to factor after using as integer
   data$group = factor(data$group)
-  
+
   return(list(data=data, fc=fc))
 
 }

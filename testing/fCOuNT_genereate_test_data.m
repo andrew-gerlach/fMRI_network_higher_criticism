@@ -1,4 +1,4 @@
-function [data, fc] = XXX_generate_test_data(n, k, net_def, mu, tau, test_type, seed, fn)
+function [data, fc] = fCOuNT_generate_test_data(n, k, net_def, mu, tau, test_type, seed, fn)
 % Function for generating test data
 % In:
 %   n       - number of subjects
@@ -96,13 +96,13 @@ function [data, fc] = XXX_generate_test_data(n, k, net_def, mu, tau, test_type, 
 
         end
     end
-    
+
     % save matrices
     for i = 1 : n
         fc_matrix = squeeze(fc(i, :, :));
         save(data.fc_fn{i}, "fc_matrix")
     end
-    
+
     % save data table
     data_fn = "testdata/testdata_" + fn + "_" + test_type + ".csv";
     writetable(data, data_fn)

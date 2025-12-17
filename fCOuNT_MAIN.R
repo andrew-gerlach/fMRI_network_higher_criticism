@@ -5,41 +5,61 @@
 #'
 #' @param data data table containing subject level variables (string, data.frame, n rows)
 #' @param test_type description of statistical test type (string)
-#' @param form formula for statistical test (string, formula)
+#' @param form formula for statistical test (string)
+#' @param var variable of interest (string)
+#' @param controls control variables (strings)
 #' @param net_def network definition for nodes (string, data.frame)
 #' @param net_def_col name of column containing network definition (optional, string)
 #' @param fc functional connectivity matrices (optional, 3D array, n x k x k)
 #' @param fc_col_name column name in data with subject level FC files (optional, string)
 #' @param fc_obj_name name of FC matrix object in storage structure (optional, string)
-#' @param alpha HC control parameter for p value cutoff (optional, numeric in (0, 1))
 #' @param k1 HC control parameter for fractional cutoff (optional, numeric in (0, 1))
 #' @param emp HC control parameter for using empirical variance (optional, boolean)
 #' @param nsim HC control parameter for number of simulations in p value calculation (optional, numeric)
 #' @param plot flag to return HC plots (optional, boolean)
 #' @param seed random seed for reproducibility
 
-XXX_MAIN = function(data, test_type, form, net_def, net_def_col, fc, fc_col_name, fc_obj_name, alpha, k1, emp, nsim, plot, seed) {
+fCOuNT_MAIN = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, plot, seed) {
 
 # packages: tidyverse, tools, readxl, R.matlab
 require(tidyverse)
+require(stringr)
 require(tools)
 require(readxl)
 require(R.matlab)
 
 # Set seed if applied
 if(!missing(seed)) { set.seed(seed) }
-  
+
 ### Step 0 process input
+
+# TODO: need more logic here to construct formula if var and controls supplied but not form
+if(missing(var)) {
+  # if variable of interest is not supplied, assume first in formula
+  var = 1
+  if(!is.null(form)) { warning("No variable of interest supplied, peforming inference on first variable in formula!") }
+} else {
+  if(!is.numeric(var)) {
+    if(is.null(form) | test_type != "t.one") { stop("Must supply formula for variables to construct formula!") }
+    tmp = str_replace_all(form, " ", "")
+    tmp = str_split(tmp, "~", simplify=T)
+    y = tmp[1]
+    x = str_split(tmp[2], "\\+", simplify=T)
+    if(y == "fc") {
+      var = which(x == var)
+    } else {
+      var = which(x == "fc")
+    }
+  }
+}
 if(!is_formula(form) & !is.null(form)) { form = as.formula(form) }
 
 # Higher Criticism options
-if(missing(alpha)) { alpha = NULL }
-if(missing(k1)) { if(is.null(alpha)) { k1 = 0.5 } else { k1 = NULL } }
+if(missing(k1)) { k1 = 0.5 }
 if(missing(emp)) { emp = T }
 if(missing(nsim)) { nsim = 1E5 }
 if(missing(plot)) { plot = T }
-hc_opts = list(alpha = alpha,
-               k1 = k1,
+hc_opts = list(k1 = k1,
                emp = emp,
                nsim = nsim,
                plot = plot)
@@ -66,17 +86,17 @@ if(!is.data.frame(data)) {
 
 ### Step 1a load fc data into array if needed
 if(missing(fc_obj_name)) {fc_obj_name = NULL }
-if(missing(fc)) { 
+if(missing(fc)) {
   if(missing(fc_col_name)) {
     stop("Must provide FC array or column name with paths to FC matrix files")
   } else {
-    fc = XXX_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name)
+    fc = fCOuNT_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name)
   }
 }
 
 ### Step 1b load network definitions if needed
 if(!is.vector(net_def) | length(net_def) == 1) {
-  
+
   # read in file name is provided
   if(is.character(net_def)){
     if(file.exists(net_def)) {
@@ -92,7 +112,7 @@ if(!is.vector(net_def) | length(net_def) == 1) {
       stop("Network definition file does not seem to exist!")
     }
   }
-  
+
   # pull network definition column if needed
   if(is.data.frame(net_def)) {
     if(missing(net_def_col)) {
@@ -103,7 +123,7 @@ if(!is.vector(net_def) | length(net_def) == 1) {
   } else {
     stop("Unrecognized format of network definition! Please supply a data frame/tibble or readable filename (full path)")
   }
-  
+
 }
 
 ### Step 2 run first level tests (call to another routine)
@@ -112,14 +132,14 @@ if(!is.vector(net_def) | length(net_def) == 1) {
 # ignore direction for now in output table
 # need p for sure, would be great to get the test statistic as well (t in this case)
 # ignore networks for now
-first_level_results = XXX_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form)
+first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var)
 
 ### Step 3 calculate network level HC statistics
-tmp = XXX_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_opts)
+tmp = fCOuNT_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_opts)
 second_level_results = tmp$second_level_results
 hc_plots = tmp$hc_plots
 
 return(list(second_level_results=second_level_results,
-            hc_plot=hc_plots))
+            hc_plots=hc_plots))
 
 }

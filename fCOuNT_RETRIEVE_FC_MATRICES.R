@@ -4,11 +4,11 @@
 #' @param fc_col_name column name in data with subject level FC files (string)
 #' @param fc_obj_name name of FC matrix object in storage structure (string)
 
-XXX_RETRIEVE_FC_MATRICES = function(data, fc_col_name, fc_obj_name) {
-  
+fCOuNT_RETRIEVE_FC_MATRICES = function(data, fc_col_name, fc_obj_name) {
+
   # number of subjects
   n = nrow(data)
-  
+
   # read in first matrix for data gathering
   fc_fn = data[, fc_col_name] %>% first(na_rm=T)
   if(file.exists(fc_fn)) {
@@ -30,27 +30,27 @@ XXX_RETRIEVE_FC_MATRICES = function(data, fc_col_name, fc_obj_name) {
   } else {
     stop("Cannot find the first FC file! Please ensure the path is correct and the file exists.")
   }
-  
+
   # extract size and basic checks
   if(length(dim(fc_mat)) != 2) { stop("The FC matrix is not 2D!") }
   k = dim(fc_mat)[1]
   if(k != dim(fc_mat)[2]) { stop("The FC matrix is not square!") }
-  
+
   # initialize FC storage array
   fc = array(NA, c(n, k, k))
   fc[1, , ] = fc_mat
   rm(fc_mat)
-  
+
   for(subj in 2 : n) {
-    
+
     fc_fn = data[subj, fc_col_name]
-    
+
     # check if file exists
     if(!file.exists(fc_fn)) {
       warning(sprintf("FC matrix not found: %s", fc_fn))
       next
     }
-    
+
     # read in FC file
     if(fc_fn_type == "csv") {
       fc_mat = read.csv(fc_fn)
@@ -72,9 +72,9 @@ XXX_RETRIEVE_FC_MATRICES = function(data, fc_col_name, fc_obj_name) {
     }
     fc[subj, , ] = fc_mat
     rm(fc_mat)
-    
+
   }
-  
+
   return(fc)
-  
+
 }

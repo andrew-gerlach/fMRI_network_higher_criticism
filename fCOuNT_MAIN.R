@@ -19,7 +19,7 @@
 #' @param plot flag to return HC plots (optional, boolean)
 #' @param seed random seed for reproducibility
 
-XXX_MAIN = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, plot, seed) {
+fCOuNT_MAIN = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, plot, seed) {
 
 # packages: tidyverse, tools, readxl, R.matlab
 require(tidyverse)
@@ -30,7 +30,7 @@ require(R.matlab)
 
 # Set seed if applied
 if(!missing(seed)) { set.seed(seed) }
-  
+
 ### Step 0 process input
 
 # TODO: need more logic here to construct formula if var and controls supplied but not form
@@ -53,9 +53,9 @@ if(missing(var)) {
   }
 }
 if(!is_formula(form) & !is.null(form)) { form = as.formula(form) }
-  
+
 # Higher Criticism options
-if(missing(k1)) { k1 = 0.5 } 
+if(missing(k1)) { k1 = 0.5 }
 if(missing(emp)) { emp = T }
 if(missing(nsim)) { nsim = 1E5 }
 if(missing(plot)) { plot = T }
@@ -86,17 +86,17 @@ if(!is.data.frame(data)) {
 
 ### Step 1a load fc data into array if needed
 if(missing(fc_obj_name)) {fc_obj_name = NULL }
-if(missing(fc)) { 
+if(missing(fc)) {
   if(missing(fc_col_name)) {
     stop("Must provide FC array or column name with paths to FC matrix files")
   } else {
-    fc = XXX_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name)
+    fc = fCOuNT_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name)
   }
 }
 
 ### Step 1b load network definitions if needed
 if(!is.vector(net_def) | length(net_def) == 1) {
-  
+
   # read in file name is provided
   if(is.character(net_def)){
     if(file.exists(net_def)) {
@@ -112,7 +112,7 @@ if(!is.vector(net_def) | length(net_def) == 1) {
       stop("Network definition file does not seem to exist!")
     }
   }
-  
+
   # pull network definition column if needed
   if(is.data.frame(net_def)) {
     if(missing(net_def_col)) {
@@ -123,7 +123,7 @@ if(!is.vector(net_def) | length(net_def) == 1) {
   } else {
     stop("Unrecognized format of network definition! Please supply a data frame/tibble or readable filename (full path)")
   }
-  
+
 }
 
 ### Step 2 run first level tests (call to another routine)
@@ -132,10 +132,10 @@ if(!is.vector(net_def) | length(net_def) == 1) {
 # ignore direction for now in output table
 # need p for sure, would be great to get the test statistic as well (t in this case)
 # ignore networks for now
-first_level_results = XXX_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var)
+first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var)
 
 ### Step 3 calculate network level HC statistics
-tmp = XXX_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_opts)
+tmp = fCOuNT_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_opts)
 second_level_results = tmp$second_level_results
 hc_plots = tmp$hc_plots
 

@@ -1,5 +1,5 @@
 ################################################################################
-# XXX_HIGHER_CRITICISM calculates the higher criticism statistic on a set of p values
+# fCOuNT_HIGHER_CRITICISM calculates the higher criticism statistic on a set of p values
 # In:  p - p-values to be highly criticized
 #      k1 - fraction or number of p values to keep
 #      emp - flag for using variance of empirical distribution
@@ -9,7 +9,7 @@
 
 # TODO: add option for not excluding low p values
 
-XXX_HIGHER_CRITICISM = function(p, k1, emp, plot) {
+fCOuNT_HIGHER_CRITICISM = function(p, k1, emp, plot) {
 
   # Assume variance of theoretical null
   if(missing(emp)) { emp = FALSE }

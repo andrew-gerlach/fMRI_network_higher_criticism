@@ -1,4 +1,4 @@
-#' XXX_RUN_2ND_LEVEL_TESTS
+#' fCOuNT_RUN_2ND_LEVEL_TESTS
 #'
 #' @param first_level_results data frame containing first level test results with columns for
 #' node1, node2, direction of test, test statistic, and p value (n rows)
@@ -11,7 +11,7 @@
 #'
 #' @examples
 
-XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
+fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
 
   # set default higher criticism options
   # NOTE: deprecate this eventually (handle in main routine)
@@ -67,20 +67,20 @@ XXX_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
       # Calculate number of tests
       second_level_results$n_tests[i : (i+1)] = length(p_low)
       # Calculate HC statistic for low direction
-      tmp = XXX_HIGHER_CRITICISM(p=p_low,
+      tmp = fCOuNT_HIGHER_CRITICISM(p=p_low,
                                  k1=hc_opts$k1,
                                  emp=hc_opts$emp,
                                  plot=hc_opts$plot)
       second_level_results$HC[i] = tmp$hc
       hc_plots[[(i + 1) / 2]][["low"]] = tmp$plot
       # Calculate HC statistic for high direction
-      tmp = XXX_HIGHER_CRITICISM(p=p_high,
+      tmp = fCOuNT_HIGHER_CRITICISM(p=p_high,
                                  k1=hc_opts$k1,
                                  emp=hc_opts$emp,
                                  plot=hc_opts$plot)
       second_level_results$HC[i + 1] = tmp$hc
       # Calculate p values for HC
-      tmp = XXX_CALC_HC_P_VALUE(
+      tmp = fCOuNT_CALC_HC_P_VALUE(
         second_level_results$HC[i : (i + 1)],
         length(p_low),
         n_sim=hc_opts$nsim,

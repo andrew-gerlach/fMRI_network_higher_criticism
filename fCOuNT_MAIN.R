@@ -16,17 +16,21 @@
 #' @param k1 HC control parameter for fractional cutoff (optional, numeric in (0, 1))
 #' @param emp HC control parameter for using empirical variance (optional, boolean)
 #' @param nsim HC control parameter for number of simulations in p value calculation (optional, numeric)
-#' @param plot flag to return HC plots (optional, boolean)
+#' @param results_plot flag to create circle plot of results (optional, boolean)
+#' @param qc_plot flag to return HC plots (optional, boolean)
+#' @param mcc option of multiple comparisons correction (string: fdr, bonferroni, none)
 #' @param seed random seed for reproducibility
 
-fCOuNT_MAIN = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, plot, seed) {
+fCOuNT_MAIN = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, qc_plot, results_plot, mcc, seed) {
 
-# packages: tidyverse, tools, readxl, R.matlab
+# packages: tidyverse, stringr, tools, readxl, R.matlab
 require(tidyverse)
 require(stringr)
 require(tools)
 require(readxl)
 require(R.matlab)
+# option for parallel 
+# option for plot
 
 # Set seed if applied
 if(!missing(seed)) { set.seed(seed) }
@@ -63,6 +67,19 @@ hc_opts = list(k1 = k1,
                emp = emp,
                nsim = nsim,
                plot = plot)
+
+# Multiple comparisons correction options
+if(missing(mcc)) {
+  mcc = "fdr"
+} else {
+  mcc = tolower(mcc)
+  if(!(mcc %in% c("fdr", "bonferroni", "none"))) {
+    stop("Invalid multiple comparisons correction option")
+  }
+}
+
+if(missing(results_plot)) { results_plot = T }
+if(results_plot)
 
 # Read in data file if needed
 if(!is.data.frame(data)) {
@@ -138,6 +155,9 @@ first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var)
 tmp = fCOuNT_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_opts)
 second_level_results = tmp$second_level_results
 hc_plots = tmp$hc_plots
+
+### Step 4 summarize results graphically
+results_plot = fCOuNT_PLOT_RESULTS(second_level_results, net_def, mcc)
 
 return(list(second_level_results=second_level_results,
             hc_plots=hc_plots))

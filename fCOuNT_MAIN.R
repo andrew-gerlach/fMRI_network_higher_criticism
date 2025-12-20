@@ -62,11 +62,11 @@ if(!is_formula(form) & !is.null(form)) { form = as.formula(form) }
 if(missing(k1)) { k1 = 0.5 }
 if(missing(emp)) { emp = T }
 if(missing(nsim)) { nsim = 1E5 }
-if(missing(plot)) { plot = T }
+if(missing(qc_plot)) { qc_plot = T }
 hc_opts = list(k1 = k1,
                emp = emp,
                nsim = nsim,
-               plot = plot)
+               plot = qc_plot)
 
 # Multiple comparisons correction options
 if(missing(mcc)) {
@@ -149,7 +149,7 @@ if(!is.vector(net_def) | length(net_def) == 1) {
 # ignore direction for now in output table
 # need p for sure, would be great to get the test statistic as well (t in this case)
 # ignore networks for now
-first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var)
+first_level_results = XXX_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var)
 
 ### Step 3 calculate network level HC statistics
 tmp = fCOuNT_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_opts)

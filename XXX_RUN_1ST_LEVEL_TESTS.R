@@ -45,93 +45,81 @@ XXX_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var){
   feature_cols = names(data %>% select(starts_with("Node")))
   
   cl = makeCluster(detectCores()-1)
-  clusterExport(cl, c("data", "form", "test_type", "var"), envir = environment())
+  clusterExport(cl, c("data", "feature_cols", "test_type", "form", "var"
+                      ,"node_pairs", "test_one_feature"), envir = environment())
   
-  results = parLapply(cl,1:length(feature_cols), function(i){
-    
-    first_level = run_tests(data, form, test_type, var)
-    result$node1 = node_paris[i, 1]
-    result$node2 = node_pairs[i, 2]
-    return(result)
-  })
+  results_list = parLapply(cl, 1:length(feature_cols), test_one_feature,
+                           data = data, feature_cols = feature_cols, 
+                           test_type = test_type, form = form, var = var,
+                           node_pairs = node_pairs)
   
   stopCluster(cl)
   
-  # Extract vectors
-  stats = sapply(results, function(x) x["stat"])
-  pvals = sapply(results, function(x) x["pval"])
-  
-  names(stats) = names(pvals) = feature_cols
-  
-  node_stats = data.frame(stats = stats, pvals = pvals)
-  
-  split_names = do.call(rbind, strsplit(rownames(node_stats), "_"))
-  node_stats$first_node  = as.integer(gsub("Node", "", split_names[, 1]))
-  node_stats$second_node = as.integer(gsub("Node", "", split_names[, 2]))
-  
-  return(node_stats)
+  # Combine results into data frame
+  first_level_results = do.call(rbind, lapply(results_list, function(x) {
+    data.frame(
+      node1 = x$node1,
+      node2 = x$node2,
+      direction = x$direction,
+      test_statistic = x$test_statistic,
+      p_low = x$p_low,
+      p_high = x$p_high,
+      stringsAsFactors = FALSE
+    )
+  }))
+  return(first_level_results)
 }
-
-
-run_tests = function(data, form, test_type, var, K) {
+test_one_feature = function(idx, data, feature_cols, test_type, form, var, node_pairs){
+  #Get the name of the feature columns
+  fc_col = feature_cols[idx]
   
-  first_level_results = data.frame(node1=numeric(K),
-                                   node2=numeric(K),
-                                   direction=character(K),
-                                   test_statistic=numeric(K),
-                                   p_low=numeric(K),
-                                   p_high=numeric(K))
+  #Rename to fc and copy data for each parallel process
+  data_copy = data
+  data_copy$fc = data_copy[[fc_col]]
   
-  test = switch(as.character(test_type),
-                # 1: t-test
-                "t.one" = try(mod = t.test(form, data = data), silent = TRUE),
-                
-                # 2: Two sample t-test
-                "t.two" = try(mod = t.test(form, data = data), silent = TRUE),
-                
-                # 3: Linear model
-                "lm" = try(mod = lm(form, data = data), silent = TRUE),
-                
-                # 4: ANOVA
-                "anova" = try(mod = aov(form, data = data), silent = TRUE),
-                
-                stop("Invalid test_type")
+  result = list(
+    node1 = node_pairs[idx, 1],
+    node2 = node_pairs[idx, 2],
+    direction = NA,
+    test_statistic = NA,
+    p_low = NA,
+    p_high = NA
   )
   
-  # Extract statistic and p-value safely depending on object type
-  if (inherits(test, "try-error")) {
-    return(NA_real_)
-  }
-  
-  if (test_type == "t.one") {
+  if(test_type == "t.one"){
     # One sample t.test
-    first_level_results$test_statistic[idx] = mod$statistic
-    first_level_results$p_low[idx] = pt(mod$statistic, mod$parameter)
-    first_level_results$p_high[idx] = pt(-mod$statistic, mod$parameter)
-    
-  } else if (test_type == "lm") {
-    # Linear regression
-    mod = lm(form, data)
-    coefs = coef(summary(mod))
-    # TODO: CANNOT ASSUME THIS INDEX!
-    first_level_results$test_statistic[idx] = coefs[var + 1, 3]
-    first_level_results$p_low[idx] = pt(coefs[var + 1, 3], mod$df.residual)
-    first_level_results$p_high[idx] = pt(-coefs[var + 1, 3], mod$df.residual)
-    
-  } else if (test_type == "anova") {
-  
-    # TO DO: ANOVA
-    
-  } else if(test_type == "t.two"){
+    mod = try(t.test(data_copy$fc), silent = TRUE)
+    if(!inherits(mod, "try-error")){
+      result$test_statistic = mod$statistic
+      result$p_low = pt(mod$statistic, mod$parameter)
+      result$p_high = pt(-mod$statistic, mod$parameter)
+    }
+  }
+  else if (test_type == "t.two"){
     # Two sample t.test
-    mod = t.test(form, data)
-    first_level_results$test_statistic[idx] = mod$statistic
-    first_level_results$p_low[idx] = pt(mod$statistic, mod$parameter)
-    first_level_results$p_high[idx] = pt(-mod$statistic, mod$parameter)
-  } else{
-    
+    mod = try(t.test(as.formula(form), data_copy), silent = TRUE)
+    if(!inherits(mod, "try-error")){
+      result$test_statistic = mod$statistic
+      result$p_low = pt(mod$statistic, mod$parameter)
+      result$p_high = pt(-mod$statistic, mod$parameter)
+    }
+  }
+  else if(test_type == "anova"){
+    #TO DO: Implement Anova Test
+    stop("ANOVA not yet implemented")
+  }
+  else if(test_type == "lm"){
+    # Linear regression
+    mod = try(lm(as.formula(form), data_copy), silent = TRUE)
+    if(!inherits(mod, "try-error")){
+      coefs = coef(summary(mod))
+      result$test_statistic = coefs[var + 1, 3]
+      result$p_low = pt(coefs[var + 1, 3], mod$df.residual)
+      result$p_high = pt(-coefs[var + 1, 3], mod$df.residual)
+    }
+  }
+  else{
     stop(paste("Test type", test_type, "is not supported!"))
   }
-  
-    return(first_level_results)
-  }
+  return(result)
+}

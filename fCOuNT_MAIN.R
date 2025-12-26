@@ -28,5 +28,4 @@ fCOuNT_MAIN = function(data, test_type, form, net_def, fc, qc_plot, results_plot
   
   return(list(second_level_results=second_level_results,
               qc_plots=qc_plots))
-
 }

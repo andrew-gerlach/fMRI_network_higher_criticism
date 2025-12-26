@@ -14,6 +14,7 @@
 
 fCOuNT_PLOT_RESULTS = function(second_level_results, net_def, mcc, font_size, label_height) {
 
+  require(circlize)
   # set graphic defaults
   if(missing(font_size)) { font_size = 1 }
   if(missing(label_height)) { label_height = 10 }

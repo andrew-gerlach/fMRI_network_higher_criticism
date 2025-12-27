@@ -1,10 +1,11 @@
 #' XXX_RUN_1st_LEVEL_TESTS
 #'
-#' @param data subject information/subject number (n subject)
-#' @param fc a large 3 dimensional data set that contains the correlation matrix of brain nodes
-#' of each subject(n x 50 x 50) (ADD SPECIFICS LATER)
-#'
-#' @returns a list of of summary statistics about the fc matrices and subject (ADD SPECIFCS LATER)
+#' @param data subject information/subject number (n subject)(data.frame, n rows)
+#' @param fc functional connectivity matrices (3D array, n x k x k)
+#' @param test_type first level test type (t.one, t.two, regression, anova)(string)
+#' @param form formula for fist level test (string)
+#' @param var variable of interest (string)
+#' @returns first level summary results (p-values, test statistic, node connections)
 #' @export
 #'
 #' @examples
@@ -105,11 +106,26 @@ test_one_feature = function(idx, data, feature_cols, test_type, form, var, node_
     }
   }
   else if(test_type == "anova"){
-    #TO DO: Implement Anova Test
-    stop("ANOVA not yet implemented")
+    # ANOVA Test
+    mod = try(aov(as.formula(form), data_copy), silent = TRUE)
+    if(!inherits(mod, "try-error")){
+      result$test_statistic = summary(mod)[[1]]$`F value`[1]
+      #ANOVA test is non-directional so only one p-value
+      results$p_low = summary(mod)[[1]]$`Pr(>F)`[1] 
+      results$p_high = NA
+    }
   }
-  else if(test_type == "lm"){
-    # Linear regression
+  else if(test_type == "ancova"){
+    # ANCOVA Test (ANOVA with covariates)
+    mod = try(aov(as.formula(form), data_copy), silent = TRUE)
+    if(!inherits(mod, "try-error")){
+      result$test_statistic = summary(mod)[[1]]$`F value`[1]
+      result$p_low = summary(mod)[[1]]$`Pr(>F)`[1]
+      result$p_high = NA
+    }
+  }
+  else if(test_type == "regression"){
+    # Linear Regression
     mod = try(lm(as.formula(form), data_copy), silent = TRUE)
     if(!inherits(mod, "try-error")){
       coefs = coef(summary(mod))

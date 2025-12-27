@@ -44,6 +44,8 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
       } else if(test_type == "anova") {
 
         # ANOVA
+        mod = aov(form, data)
+        first_level_results$p_low[idx] = summary(mod)[[1]][["Pr(>F)"]][1]
 
       } else if(test_type == "regression") {
 

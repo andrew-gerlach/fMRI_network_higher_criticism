@@ -1,6 +1,6 @@
 # ARoG: temporary script for running 1st level tests
 
-fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var) {
+fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
 
   k = dim(fc)[2]
   K = k * (k - 1) / 2

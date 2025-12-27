@@ -77,3 +77,4 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
   return(list(form=form, var_idx=var_idx))
 
 }
+

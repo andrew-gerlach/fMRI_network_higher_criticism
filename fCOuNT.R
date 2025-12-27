@@ -43,7 +43,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   
   # Check that test type is supported
   test_type = tolower(test_type)
-  if(!(test_type %in% c("t.one", "t.two", "anova", "regression"))) {
+  if(!(test_type %in% c("t.one", "t.two", "anova", "regression", "ancova"))) {
     stop(paste("Test type", test_type, "is not currently supported"))
   }
   
@@ -94,7 +94,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   net_def = fCOuNT_RETRIEVE_NET_DEF(net_def, net_def_col)
   
   # Call main driver routine
-  tmp = fCOuNT_MAIN(data, test_type, form, var_idx, net_def, fc, qc_plot, results_plot, plot_opts, mcc)
+  tmp = fCOuNT_MAIN(data, test_type, form, var_idx, net_def, fc, qc_plot, results_plot, plot_opts, mcc, hc_opts)
   
   return(list(second_level_results=tmp$second_level_results,
               qc_plots=tmp$qc_plots,

@@ -13,12 +13,13 @@
 #' @param plot_opts list of results plot control options (optional)
 #' @param mcc option of multiple comparisons correction (string: fdr, bonferroni, none)
 
-fCOuNT_MAIN = function(data, test_type, form, var_idx, net_def, fc, qc_plot, results_plot, plot_opts, mcc) {
+fCOuNT_MAIN = function(data, test_type, form, var_idx, net_def, fc, qc_plot, results_plot, plot_opts, mcc, hc_opts) {
 
   # Step 1 run first level tests (call to another routine)
-  first_level_results = XXX_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx)
+  first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx)
   
   # Step 2 calculate network level HC statistics
+  
   tmp = fCOuNT_RUN_2ND_LEVEL_TESTS(first_level_results, net_def, hc_opts)
   second_level_results = tmp$second_level_results
   qc_plots = tmp$qc_plots

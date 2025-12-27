@@ -10,7 +10,6 @@
 ################################################################################
 
 fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp) {
-<<<<<<< HEAD
   require(parallel)
   
   if(missing(n_sim)) { n_sim = 10000 }
@@ -18,19 +17,23 @@ fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp) {
   cl = makeCluster(detectCores()-1)
   
   # Export necessary objects and functions
-  clusterEvalQ(cl, {
-    source("C:\\Users\\arvin\\Documents\\fMRI_network_higher_criticism\\fCOuNT_HIGHER_CRITICISM.R")
-  })
+  script_path = normalizePath(
+    file.path(getwd(), "fCOuNT.R"),
+    mustWork = TRUE
+  )
   
-  clusterExport(cl, c("k1", "emp", "n_test"), 
+  
+  clusterExport(cl, c("k1", "emp", "n_test", "script_path", "fCOuNT_HIGHER_CRITICISM"), 
                 envir = environment())
+ 
+   clusterEvalQ(cl,source(script_path))
   
   hc_vals = unlist(parLapply(cl, 1:n_sim, function(i) {
     fCOuNT_HIGHER_CRITICISM(
       p = runif(n_test),
       k1 = k1,
       emp = emp,
-      plot = FALSE)
+      qc_plot = FALSE)
   }))
   
   stopCluster(cl)

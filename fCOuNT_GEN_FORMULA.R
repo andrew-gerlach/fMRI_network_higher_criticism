@@ -33,9 +33,8 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 
   }
 
-
   # Determine index for variable of interest
-  if(missing(var)) {
+  if(is.null(var)) {
 
     # get FC index assuming outcome is variable of interest
     if("fc" %in% x) {
@@ -46,7 +45,7 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
     } else {
 
       var_idx = 1
-      warning("No variable of interest supplied, peforming inference on first variable in formula!")
+      warning(paste("No variable of interest supplied, Performing inference on first variable in formula:", x[1]))
 
     }
 

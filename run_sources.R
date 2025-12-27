@@ -1,9 +1,12 @@
 
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_MAIN.R')
+source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_READ_DATA.R')
+source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_GEN_FORMULA.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_GEN_PLOT_OPTIONS.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_GEN_HC_OPTIONS.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_RETRIEVE_FC_MATRICES.R')
+source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_RETRIEVE_NET_DEF.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_RUN_1ST_LEVEL_TESTS.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_RUN_2ND_LEVEL_TESTS.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_CALC_HC_P_VALUE.R')

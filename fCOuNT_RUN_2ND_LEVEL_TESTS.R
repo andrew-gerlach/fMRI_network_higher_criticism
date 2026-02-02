@@ -13,12 +13,6 @@
 
 fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
 
-  # set default higher criticism options
-  # NOTE: deprecate this eventually (handle in main routine)
-  if(missing(hc_opts)) {
-    hc_opts = list(k1=0.5, emp=F, nsim=1E5, plot=T)
-  }
-
   # pull network info from net_def
   networks = unique(net_def[!is.na(net_def)])
   m = length(networks)
@@ -45,7 +39,7 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
   # table row index
   i = -1
   # initialize plot storage
-  hc_plots = list()
+  qc_plots = list()
 
   # Loop through network pairs
   for(m1 in 1 : m) {
@@ -53,10 +47,11 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
     for(m2 in m1 : m) {
 
       i = i + 2
-      hc_plots[[(i + 1) / 2]] = list()
+      qc_plots[[(i + 1) / 2]] = list()
       # Fill in table network definitions
       second_level_results$network1[i : (i+1)] = networks[m1]
       second_level_results$network2[i : (i+1)] = networks[m2]
+
       # Extract relevant p values
       p_low = first_level_results %>%
         filter((network1 == networks[m1] & network2 == networks[m2]) | (network1 == networks[m2] & network2 == networks[m1])) %>%
@@ -64,21 +59,23 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
       p_high = first_level_results %>%
         filter((network1 == networks[m1] & network2 == networks[m2]) | (network1 == networks[m2] & network2 == networks[m1])) %>%
         pull(p_high)
+
       # Calculate number of tests
       second_level_results$n_tests[i : (i+1)] = length(p_low)
+
       # Calculate HC statistic for low direction
-      tmp = fCOuNT_HIGHER_CRITICISM(p=p_low,
-                                 k1=hc_opts$k1,
-                                 emp=hc_opts$emp,
-                                 plot=hc_opts$plot)
-      second_level_results$HC[i] = tmp$hc
-      hc_plots[[(i + 1) / 2]][["low"]] = tmp$plot
+      tmp1 = fCOuNT_HIGHER_CRITICISM(p=p_low,
+                                     k1=hc_opts$k1,
+                                     emp=hc_opts$emp,
+                                     qc_plot=hc_opts$qc_plot)
+      second_level_results$HC[i] = tmp1$hc
       # Calculate HC statistic for high direction
-      tmp = fCOuNT_HIGHER_CRITICISM(p=p_high,
-                                 k1=hc_opts$k1,
-                                 emp=hc_opts$emp,
-                                 plot=hc_opts$plot)
-      second_level_results$HC[i + 1] = tmp$hc
+      tmp2 = fCOuNT_HIGHER_CRITICISM(p=p_high,
+                                     k1=hc_opts$k1,
+                                     emp=hc_opts$emp,
+                                     qc_plot=hc_opts$qc_plot)
+      second_level_results$HC[i + 1] = tmp2$hc
+
       # Calculate p values for HC
       tmp = fCOuNT_CALC_HC_P_VALUE(
         second_level_results$HC[i : (i + 1)],
@@ -87,19 +84,27 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
         k1=hc_opts$k1,
         emp=hc_opts$emp)
       second_level_results$p[i : (i + 1)] = tmp$p
-      hc_plots[[(i + 1) / 2]][["high"]] = tmp$plot +
-        geom_line(data=data.frame(x=c(0, 1),
-                                  y=rep(tmp$hc_crit, 2)),
-                  mapping=aes(x, y),
-                  color="red",
-                  size=2)
+
+      # Add critical line for HC to plots
+      #qc_plots[[(i + 1) / 2]][["lowh"]] = tmp1$qc_plots +
+      #  geom_line(data=data.frame(x=c(0, 1),
+      #                            y=rep(tmp1$hc_crit, 2)),
+      #            mapping=aes(x, y),
+      #            color="red",
+      #            size=2)
+      #qc_plots[[(i + 1) / 2]][["high"]] = tmp2$qc_plots +
+      #  geom_line(data=data.frame(x=c(0, 1),
+      #                            y=rep(tmp2$hc_crit, 2)),
+      #            mapping=aes(x, y),
+      #            color="red",
+      #            size=2)
 
     }
 
   }
 
   return(list(second_level_results=second_level_results,
-              hc_plot=hc_plots))
+              qc_plot=qc_plots))
 
 }
 

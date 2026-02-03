@@ -4,7 +4,11 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
   # Construct formula if needed
   if(is.null(form)) {
 
+    if(test_type != "t.one") {
+      
       # TODO: need more logic here to construct formula if var and controls supplied but not form
+      
+    }
 
   } else if(is.character(form) | is_formula(form)) {
 
@@ -36,16 +40,21 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
   # Determine index for variable of interest
   if(is.null(var)) {
 
-    # get FC index assuming outcome is variable of interest
-    if("fc" %in% x) {
-
-      var_idx = which(x == "fc")
-
-    # if variable of interest is not supplied, assume first in formula
+    # ignore variable of interest for a one-sided t-test
+    if(test_type == "t.one") {
+      
+      var_idx = NULL
+      
     } else {
-
-      var_idx = 1
-      warning(paste("No variable of interest supplied, Performing inference on first variable in formula:", x[1]))
+      
+      # get FC index assuming outcome is variable of interest
+      if("fc" %in% x) {
+        var_idx = which(x == "fc")
+      # if variable of interest is not supplied, assume first in formula
+      } else {
+        var_idx = 1
+        warning(paste("No variable of interest supplied, Performing inference on first variable in formula:", x[1]))
+      }
 
     }
 
@@ -56,14 +65,10 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 
       # get variable of interest index if FC is outcome
       if(y == "fc") {
-
         var_idx = which(x == var)
-
       # get fc index if variable of interest is outcome
       } else {
-
         var_idx = which(x == "fc")
-
       }
 
     } else {

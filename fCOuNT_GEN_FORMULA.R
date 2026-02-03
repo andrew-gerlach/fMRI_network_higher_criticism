@@ -38,15 +38,16 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
   }
 
   # Determine index for variable of interest
-  if(is.null(var)) {
-
+  
+  if(test_type == "t.one") {
+    
     # ignore variable of interest for a one-sided t-test
-    if(test_type == "t.one") {
-      
-      var_idx = NULL
-      
-    } else {
-      
+    var_idx = NULL
+    
+  } else {
+    
+    if(is.null(var)) {
+
       # get FC index assuming outcome is variable of interest
       if("fc" %in% x) {
         var_idx = which(x == "fc")
@@ -56,25 +57,29 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
         warning(paste("No variable of interest supplied, Performing inference on first variable in formula:", x[1]))
       }
 
-    }
-
-  } else {
-
-    # Ensure variable exists in data frame
-    if(var %in% names(data)) {
-
-      # get variable of interest index if FC is outcome
-      if(y == "fc") {
-        var_idx = which(x == var)
-      # get fc index if variable of interest is outcome
-      } else {
-        var_idx = which(x == "fc")
-      }
-
     } else {
 
-      stop("Variable of interest does not exist in the data!")
+      # Ensure variable exists in data frame
+      if(var == "intercept") {
+        
+        var_idx = 0
+        
+      } else if(var %in% names(data)) {
 
+        # get variable of interest index if FC is outcome
+        if(y == "fc") {
+          var_idx = which(x == var)
+        # get fc index if variable of interest is outcome
+        } else {
+          var_idx = which(x == "fc")
+        }
+
+      } else {
+
+        stop("Variable of interest does not exist in the data!")
+
+      }
+      
     }
 
   }

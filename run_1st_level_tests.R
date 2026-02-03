@@ -51,9 +51,9 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
         mod = lm(form, data)
         coefs = coef(summary(mod))
         # TODO: CANNOT ASSUME THIS INDEX!
-        first_level_results$test_statistic[idx] = coefs[var + 1, 3]
-        first_level_results$p_low[idx] = pt(coefs[var + 1, 3], mod$df.residual)
-        first_level_results$p_high[idx] = pt(-coefs[var + 1, 3], mod$df.residual)
+        first_level_results$test_statistic[idx] = coefs[var_idx + 1, 3]
+        first_level_results$p_low[idx] = pt(coefs[var_idx + 1, 3], mod$df.residual)
+        first_level_results$p_high[idx] = pt(-coefs[var_idx + 1, 3], mod$df.residual)
 
       } else {
         stop(paste("Test type", test_type, "is not supported!"))

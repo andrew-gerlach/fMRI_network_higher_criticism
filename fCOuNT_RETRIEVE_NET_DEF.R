@@ -21,7 +21,11 @@ fCOuNT_RETRIEVE_NET_DEF = function(net_def, net_def_col) {
     # pull network definition column if needed
     if(is.data.frame(net_def)) {
       if(missing(net_def_col)) {
-        stop("Network definition column name needed to read in network definition from table")
+        if(ncol(net_def) == 1) {
+          net_def = net_def %>% pull(names(net_def))
+        } else {
+          stop("Network definition column name needed to read in network definition from table")
+        }
       } else {
         net_def = net_def %>% pull(net_def_col)
       }

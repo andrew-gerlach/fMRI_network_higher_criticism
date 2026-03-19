@@ -26,27 +26,27 @@
 fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, qc_plot, results_plot, mcc, font_size, label_height, seed) {
 
   # packages: tidyverse, stringr, rlang, tools, readxl, R.matlab
-  require(tidyverse)
-  require(stringr)
-  require(rlang)
-  require(tools)
-  require(readxl)
-  require(R.matlab)
-  # option for parallel 
-  # option for plot
+  packages = c("tidyverse", "stringr", "rlang", "tools", "readxl", "R.matlab", "xfun", "parallel", "circlize")
+  for(p in packages) {
+    if(!require(p, character.only=T)) {
+      install.packages(p)
+      library(p, character.only=T)
+    }
+  }
 
   # Set seed if applied
+  # TODO: seems like the results are still stochastic, related to parallelization maybe??
   if(!missing(seed)) { set.seed(seed) }
 
   # Read in data file if needed
   data = fCOuNT_READ_DATA(data)
-  
+
   # Check that test type is supported
   test_type = tolower(test_type)
   if(!(test_type %in% c("t.one", "t.two", "anova", "regression", "ancova"))) {
     stop(paste("Test type", test_type, "is not currently supported"))
   }
-  
+
   # Formula handling
   if(missing(form)) { form = NULL }
   if(missing(var)) { var = NULL }
@@ -54,7 +54,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   tmp = fCOuNT_GEN_FORMULA(data, test_type, form, var, controls)
   form = tmp$form
   var_idx = tmp$var_idx
- 
+
   ### Step 1a load fc data into array if needed
   if(missing(fc_obj_name)) {fc_obj_name = NULL }
   if(missing(fc)) {
@@ -64,14 +64,14 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
       fc = fCOuNT_RETRIEVE_FC_MATRICES(data, fc_col_name, fc_obj_name)
     }
   }
-  
+
   # Higher Criticism options
   if(missing(k1)) { k1 = NULL }
   if(missing(emp)) { emp = NULL }
   if(missing(nsim)) { nsim = NULL }
   if(missing(qc_plot)) { qc_plot = NULL }
   hc_opts = fCOuNT_GEN_HC_OPTIONS(k1, emp, nsim, qc_plot)
-  
+
   # Multiple comparisons correction options
   if(missing(mcc)) {
     mcc = "fdr"
@@ -81,7 +81,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
       stop("Invalid multiple comparisons correction option")
     }
   }
-  
+
   # Plot options
   if(missing(results_plot)) { results_plot = T }
   if(results_plot) {
@@ -89,15 +89,16 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
     if(missing(label_height)) { label_height = NULL }
     plot_opts = fCOuNT_GEN_PLOT_OPTIONS(mcc, font_size, label_height)
   }
- 
+
   # Load network definitions
+  if(missing(net_def_col)) { net_def_col = NULL }
   net_def = fCOuNT_RETRIEVE_NET_DEF(net_def, net_def_col)
-  
+
   # Call main driver routine
   tmp = fCOuNT_MAIN(data, test_type, form, var_idx, net_def, fc, qc_plot, results_plot, plot_opts, mcc, hc_opts)
-  
+
   return(list(second_level_results=tmp$second_level_results,
               qc_plots=tmp$qc_plots,
               results_plots=tmp$results_plots))
-  
+
 }

@@ -26,7 +26,7 @@ fCOuNT_MAIN = function(data, test_type, form, var_idx, net_def, fc, qc_plot, res
   
   # Step 3 summarize results graphically
   if(results_plot) {
-    results_plots = fCOuNT_PLOT_RESULTS(second_level_results, net_def, mcc)
+    results_plots = fCOuNT_PLOT_RESULTS(second_level_results, plot_opts)
   } else {
     results_plots= NULL
   }

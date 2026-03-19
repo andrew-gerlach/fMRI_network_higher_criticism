@@ -15,7 +15,8 @@ fCOuNT_HIGHER_CRITICISM = function(p, k1, emp, qc_plot) {
   if(missing(emp)) { emp = FALSE }
   if(missing(qc_plot)) { qc_plot = FALSE }
 
-  # Sort p values in ascending order
+  # Removes NAs and sort p values in ascending order
+  p = p[!is.na(p)]
   n = length(p)
   p_sorted = sort(p)
 

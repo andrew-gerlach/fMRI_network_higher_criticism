@@ -23,6 +23,16 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
 
       # add fc to data
       data$fc = fc[, i, j]
+      
+      # TODO: revisit this criteria
+      if(sum(is.na(data$fc)) > (nrow(data) / 2)) { 
+        
+        first_level_results$test_statistic[idx] = NA
+        first_level_results$p_low[idx] = NA
+        first_level_results$p_high[idx] = NA
+        next
+        
+      }
 
       # perform tests
       if(test_type == "t.one") {
@@ -43,7 +53,10 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
 
       } else if(test_type == "anova") {
 
-        # ANOVA
+        mod = aov(form, data)
+        first_level_results$test_statistic[idx] = summary(mod)[[1]][["F value"]][1]
+        first_level_results$p_low[idx] = summary(mod)[[1]][["Pr(>F)"]][1]
+        first_level_results$p_high[idx] = NA
 
       } else if(test_type == "regression") {
 

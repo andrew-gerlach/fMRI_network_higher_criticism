@@ -61,7 +61,8 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
         pull(p_high)
 
       # Calculate number of tests
-      second_level_results$n_tests[i : (i+1)] = length(p_low)
+      n_tests = sum(!is.na(p_low))
+      second_level_results$n_tests[i : (i+1)] = n_tests
 
       # Calculate HC statistic for low direction
       tmp1 = fCOuNT_HIGHER_CRITICISM(p=p_low,
@@ -79,7 +80,7 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
       # Calculate p values for HC
       tmp = fCOuNT_CALC_HC_P_VALUE(
         second_level_results$HC[i : (i + 1)],
-        length(p_low),
+        n_tests,
         n_sim=hc_opts$nsim,
         k1=hc_opts$k1,
         emp=hc_opts$emp)

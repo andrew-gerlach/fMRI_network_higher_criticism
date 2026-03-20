@@ -21,8 +21,9 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
     }
 
     # format formula as characters and extract x and y components
-    tmp = str_replace_all(format(form), " ", "")
-    tmp = str_split(tmp, "~", simplify=T)
+    tmp = paste(format(form), collapse="") %>%
+      str_replace_all(" ", "") %>%
+      str_split("~", simplify = TRUE)
     y = tmp[1]
     x = str_split(tmp[2], "\\+", simplify=T)
 

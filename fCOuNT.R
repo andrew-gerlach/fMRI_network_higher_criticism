@@ -26,7 +26,7 @@
 fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, qc_plot, results_plot, mcc, font_size, label_height, seed) {
 
   # packages: tidyverse, stringr, rlang, tools, readxl, R.matlab
-  packages = c("tidyverse", "stringr", "rlang", "tools", "readxl", "R.matlab", "xfun", "parallel", "circlize")
+  packages = c("tidyverse", "stringr", "rlang", "tools", "readxl", "R.matlab", "xfun", "parallel", "circlize", "lmerTest")
   for(p in packages) {
     if(!require(p, character.only=T)) {
       install.packages(p)
@@ -43,7 +43,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
 
   # Check that test type is supported
   test_type = tolower(test_type)
-  if(!(test_type %in% c("t.one", "t.two", "anova", "regression", "ancova"))) {
+  if(!(test_type %in% c("t.one", "t.two", "anova", "regression", "ancova", "mlr"))) {
     stop(paste("Test type", test_type, "is not currently supported"))
   }
 

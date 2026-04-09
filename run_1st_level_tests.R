@@ -53,6 +53,7 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
 
       } else if(test_type == "anova") {
 
+        # anova
         mod = aov(form, data)
         first_level_results$test_statistic[idx] = summary(mod)[[1]][["F value"]][1]
         first_level_results$p_low[idx] = summary(mod)[[1]][["Pr(>F)"]][1]
@@ -63,10 +64,18 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
         # linear regression
         mod = lm(form, data)
         coefs = coef(summary(mod))
-        # TODO: CANNOT ASSUME THIS INDEX!
         first_level_results$test_statistic[idx] = coefs[var_idx + 1, 3]
         first_level_results$p_low[idx] = pt(coefs[var_idx + 1, 3], mod$df.residual)
         first_level_results$p_high[idx] = pt(-coefs[var_idx + 1, 3], mod$df.residual)
+        
+      } else if(test_type == "mlr") {
+        
+        # multilevel regression
+        mod = lmer(form, data)
+        coefs = coef(summary(mod))
+        first_level_results$test_statistic[idx] = coefs[var_idx + 1, 4]
+        first_level_results$p_low[idx] = pt(coefs[var_idx + 1, 4], coefs[var_idx + 1, 3])
+        first_level_results$p_high[idx] = pt(-coefs[var_idx + 1, 4], coefs[var_idx + 1, 3])
 
       } else {
         stop(paste("Test type", test_type, "is not supported!"))

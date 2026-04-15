@@ -54,6 +54,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   tmp = fCOuNT_GEN_FORMULA(data, test_type, form, var, controls)
   form = tmp$form
   var_idx = tmp$var_idx
+  # TODO: add ability to define reference level for groups for clearer directionality
 
   ### Step 1a load fc data into array if needed
   if(missing(fc_obj_name)) {fc_obj_name = NULL }

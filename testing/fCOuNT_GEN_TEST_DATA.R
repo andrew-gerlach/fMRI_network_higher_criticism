@@ -1,6 +1,5 @@
 # Function for generating test data
 # In:  n - number of subjects
-#      k - number of nodes in parcellation
 #      net_def - network definition for nodes
 #      mu - effect strength (1 per network pair)
 #      tau - effect sparsity (1 per network pair)
@@ -8,16 +7,33 @@
 # Out: data - data frame of variables
 #      fc - connectivity matrices
 
-fCOuNT_GEN_TEST_DATA = function(n, k, net_def, mu, tau, seed) {
-
+fCOuNT_GEN_TEST_DATA = function(n, net_def, mu, tau, seed) {
+  
   # set seed for replicability
   set.seed(seed)
-  
-  # number of unique entries
+ 
+  # number of nodes and unique entries
+  k = net_def %>% length()
   K = k * (k - 1) / 2
   
+  # check for compatibility in network definition/effects
+  m = net_def %>% unique() %>% length()
+  M = m * (m + 1) / 2
+  if(length(mu) != M) {
+    stop("Number of effect strengths provided (%i) does not match number of total network pairs (%i)", length(mu), M)
+  }
+  if(length(tau) != M) {
+    stop("Number of effect sparsities provided (%i) does not match number of total network pairs (%i)", length(tau), M)
+  }
+
   # initialize connectivity matrices, stacked by subject
   fc = array(NA, c(n, k, k))
+  
+  # adjust n for divisibility by 2 and 3
+  if(n %% 6 != 0) { 
+    n = n - n %% 6
+    warning("Adjusting n for divisibility into 2 and 3 groups")
+  }
   
   # initialize data frame with:
   data = data.frame(subj = factor(1 : n),                               # subject ID

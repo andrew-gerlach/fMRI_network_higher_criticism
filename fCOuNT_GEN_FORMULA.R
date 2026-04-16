@@ -61,7 +61,7 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 
   } else {
 
-    stop("Unsupported format for form, please provide text or formula")
+    stop("Unsupported format for formula, please provide text or formula")
 
   }
 
@@ -115,10 +115,10 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
       
     }
     
-    # check for categorical variables with more than two level and increment as needed 
+    # check for categorical variables with more than two levels and increment as needed 
     if(var_idx > 1) {
-      for(i in 1 : (var_idx - 1)) {
-        tmp = data %>% pull(x[i])
+      for(col in x[1 : (var_idx - 1)]) {
+        tmp = data %>% pull(col)
         if(is.factor(tmp)) {
           n = length(levels(tmp))
           var_idx = var_idx + n - 2

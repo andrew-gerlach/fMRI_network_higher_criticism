@@ -15,7 +15,6 @@
 #' @param fc_obj_name name of FC matrix object in storage structure (optional, string)
 #' @param k1 HC control parameter for fractional cutoff (optional, numeric in (0, 1))
 #' @param emp HC control parameter for using empirical variance (optional, boolean)
-#' @param qc_plot flag to return HC plots (optional, boolean)
 #' @param nsim HC control parameter for number of simulations in p value calculation (optional, numeric)
 #' @param results_plot flag to create circle plot of results (optional, boolean)
 #' @param mcc option of multiple comparisons correction (optional, string: fdr, bonferroni, none)
@@ -23,7 +22,7 @@
 #' @param label_height height of label track on plot (optional, numeric)
 #' @param seed random seed for reproducibility (optional, numeric)
 
-fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, qc_plot, results_plot, mcc, font_size, label_height, seed) {
+fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, results_plot, mcc, font_size, label_height, seed) {
 
   # packages: tidyverse, stringr, rlang, tools, readxl, R.matlab
   packages = c("tidyverse", "stringr", "rlang", "tools", "readxl", "R.matlab", "xfun", "parallel", "circlize", "lmerTest")
@@ -70,8 +69,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   if(missing(k1)) { k1 = NULL }
   if(missing(emp)) { emp = NULL }
   if(missing(nsim)) { nsim = NULL }
-  if(missing(qc_plot)) { qc_plot = NULL }
-  hc_opts = fCOuNT_GEN_HC_OPTIONS(k1, emp, nsim, qc_plot)
+  hc_opts = fCOuNT_GEN_HC_OPTIONS(k1, emp, nsim)
 
   # Multiple comparisons correction options
   if(missing(mcc)) {
@@ -96,9 +94,10 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   net_def = fCOuNT_RETRIEVE_NET_DEF(net_def, net_def_col)
 
   # Call main driver routine
-  tmp = fCOuNT_MAIN(data, test_type, form, var_idx, net_def, fc, qc_plot, results_plot, plot_opts, mcc, hc_opts)
+  tmp = fCOuNT_MAIN(data, test_type, form, var_idx, net_def, fc, results_plot, plot_opts, mcc, hc_opts)
 
-  return(list(second_level_results=tmp$second_level_results,
+  return(list(first_level_results=tmp$first_level_results,
+              second_level_results=tmp$second_level_results,
               qc_plots=tmp$qc_plots,
               results_plots=tmp$results_plots))
 

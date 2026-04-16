@@ -10,7 +10,7 @@ seed_in = 123
 m = length(unique(net_def))
 M = m * (m + 1) / 2
 
-tmp_in = fCOuNT_GEN_TEST_DATA(n , k, net_def, mu, tau, seed_in)
+tmp_in = fCOuNT_GEN_TEST_DATA(n, net_def, mu, tau, seed_in)
 
 ### One-sample t-test
 tmp_out = fCOuNT(data = tmp_in$data,
@@ -54,6 +54,7 @@ results = data.frame(test=rep("regression", M * 2)) %>%
   cbind(tmp_out$second_level_results) %>%
   rbind(results, .)
 
+# results_benchmark = results
 # save(results_benchmark, file="benchmark_50node_3net_01.rdata")
 load("benchmark_50node_3net_01.rdata")
 if(!identical(results, results_benchmark)) {

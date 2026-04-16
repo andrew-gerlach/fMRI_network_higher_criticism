@@ -30,8 +30,8 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   for(p in packages) {
     if(!require(p, character.only=T)) {
       install.packages(p)
-      library(p, character.only=T)
     }
+    library(p, character.only=T)
   }
 
   # Set seed if applied

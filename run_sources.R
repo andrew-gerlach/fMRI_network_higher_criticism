@@ -1,3 +1,11 @@
+# packages: tidyverse, stringr, rlang, tools, readxl, R.matlab
+packages = c("tidyverse", "stringr", "rlang", "tools", "readxl", "R.matlab", "xfun", "parallel", "circlize", "lmerTest")
+for(p in packages) {
+  if(!require(p, character.only=T)) {
+    install.packages(p)
+  }
+  library(p, character.only=T)
+}
 
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_MAIN.R')
@@ -13,5 +21,6 @@ source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_HIGHER_CRITICISM.R')
 #source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_CALC_HC_P_VALUE.R')
 source('~/Fellowship/projects/hc/fCOuNT/fCOuNT_PLOT_RESULTS.R')
 source("~/Fellowship/projects/hc/fCOuNT/testing/fCOuNT_GEN_TEST_DATA.R")
+source("~/Fellowship/projects/hc/fCOuNT/testing/fCOuNT_GEN_MEM_TEST_DATA.R")
 source('~/Fellowship/projects/hc/fCOuNT/run_1st_level_tests.R')
 source('~/Fellowship/projects/hc/fCOuNT/calc_hc_p_value.R')

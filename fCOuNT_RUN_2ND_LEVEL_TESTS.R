@@ -4,6 +4,7 @@
 #' node1, node2, direction of test, test statistic, and p value (n rows)
 #' @param net_def vector defining which network each node belongs to (length k)
 #' @param hc_opts options for higher criticism
+#' @param parallel_opts list of parallel computing control options 
 #'
 #' @returns second_level_results date frame containing second level test results with columns
 #' for network1, network2, direction of test, HC statistic, and p value
@@ -11,7 +12,7 @@
 #'
 #' @examples
 
-fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
+fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, parallel_opts) {
 
   # set default plot theme for QC plot
   dpt = theme(text=element_text(size=18),
@@ -84,7 +85,8 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts) {
                                    n_tests,
                                    n_sim=hc_opts$nsim,
                                    k1=hc_opts$k1,
-                                   emp=hc_opts$emp)
+                                   emp=hc_opts$emp,
+                                   parallel_opts=parallel_opts)
       second_level_results$p[i : (i + 1)] = tmp$p
       
       ### Quality control plots

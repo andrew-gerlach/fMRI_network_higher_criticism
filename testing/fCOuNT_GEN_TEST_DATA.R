@@ -78,20 +78,45 @@ fCOuNT_GEN_TEST_DATA = function(n, net_def, mu, tau, seed) {
       # skip if no signal in this network pair
       if(mu[net_pair] == 0) { next }
 
-      # determine the number of node pairs in network pair
+      # determine the number of node pairs in network pair and build a table for sampling
       if(i == j) {
+        
         K_net = sum(net_def == networks[i]) * (sum(net_def == networks[j]) - 1) / 2
+        # indices of nodes in network
+        ii = (1 : k)[which(net_def == networks[i])]
+        # table of unique node pairs
+        node_pair_table = matrix(NA, nrow=K_net, ncol=2)
+        npt_idx = 0
+        for(i1 in 1 : (length(ii) - 1)) {
+          for(j1 in (i1 + 1) : length(ii)) {
+            npt_idx = npt_idx + 1
+            node_pair_table[npt_idx, ] = c(ii[i1], ii[j1])
+          }
+        }
+        
       } else {
+        
         K_net = sum(net_def == networks[i]) * sum(net_def == networks[j])
+        # indices of nodes in networks
+        ii = (1 : k)[which(net_def == networks[i])]
+        jj = (1 : k)[which(net_def == networks[j])]
+        # table of unique node pairs
+        node_pair_table = matrix(NA, nrow=K_net, ncol=2)
+        npt_idx = 0
+        for(i1 in 1 : length(ii)) {
+          for(j1 in 1 : length(jj)) {
+            npt_idx = npt_idx + 1
+            node_pair_table[npt_idx, ] = c(ii[i1], jj[j1])
+          }
+        }
       }
 
       # random indices
-      idx1 = sample((1 : k)[which(net_def == networks[i])],
-                    round(tau[net_pair] * K_net),
-                    replace = F)
-      idx2 = sample((1 : k)[which(net_def == networks[j])],
-                    round(tau[net_pair] * K_net),
-                    replace = F)
+      rand_idx = sample(1 : K_net,
+                        round(tau[net_pair] * K_net),
+                        replace = F)
+      idx1 = node_pair_table[rand_idx, 1]
+      idx2 = node_pair_table[rand_idx, 2]
 
       # inject sparse/weak signal
       for(l in 1 : length(idx1)) {

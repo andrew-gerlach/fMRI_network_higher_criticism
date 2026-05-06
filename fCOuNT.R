@@ -13,16 +13,19 @@
 #' @param fc functional connectivity matrices (optional, 3D array, n x k x k)
 #' @param fc_col_name column name in data with subject level FC files (optional, string)
 #' @param fc_obj_name name of FC matrix object in storage structure (optional, string)
+#' @param mcc option of multiple comparisons correction (optional, string: fdr, bonferroni, none)
+#' @param parallel flag to use parallel calculations (optional, boolean, default true)
+#' @param nodes number of nodes to use for parallel (optional, integer, default max available)
+#' @param mcc option of multiple comparisons correction (optional, string: fdr, bonferroni, none)
 #' @param k1 HC control parameter for fractional cutoff (optional, numeric in (0, 1))
 #' @param emp HC control parameter for using empirical variance (optional, boolean)
 #' @param nsim HC control parameter for number of simulations in p value calculation (optional, numeric)
 #' @param results_plot flag to create circle plot of results (optional, boolean)
-#' @param mcc option of multiple comparisons correction (optional, string: fdr, bonferroni, none)
 #' @param font_size font size for network labels on plot (optional, numeric)
 #' @param label_height height of label track on plot (optional, numeric)
 #' @param seed random seed for reproducibility (optional, numeric)
 
-fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, k1, emp, nsim, results_plot, mcc, font_size, label_height, seed) {
+fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, mcc, parallel, nodes, k1, emp, nsim, results_plot, font_size, label_height, seed) {
 
   # packages: tidyverse, stringr, rlang, tools, readxl, R.matlab
   packages = c("tidyverse", "stringr", "rlang", "tools", "readxl", "R.matlab", "xfun", "parallel", "circlize", "lmerTest")
@@ -37,6 +40,11 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   # TODO: seems like the results are still stochastic, related to parallelization maybe??
   if(!missing(seed)) { set.seed(seed) }
 
+  # Set parallel options
+  if(missing(parallel)) { parallel = T }
+  if(missing(nodes)) { nodes = NULL }
+  parallel_opts = fCOuNT_GEN_PARALLEL_OPTIONS(parallel, nodes)
+  
   # Read in data file if needed
   data = fCOuNT_READ_DATA(data)
 
@@ -94,7 +102,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   net_def = fCOuNT_RETRIEVE_NET_DEF(net_def, net_def_col)
 
   # Call main driver routine
-  tmp = fCOuNT_MAIN(data, test_type, form, var_idx, net_def, fc, results_plot, plot_opts, mcc, hc_opts)
+  tmp = fCOuNT_MAIN(data, test_type, form, var_idx, net_def, fc, results_plot, plot_opts, parallel_opts, mcc, hc_opts)
 
   return(list(first_level_results=tmp$first_level_results,
               second_level_results=tmp$second_level_results,

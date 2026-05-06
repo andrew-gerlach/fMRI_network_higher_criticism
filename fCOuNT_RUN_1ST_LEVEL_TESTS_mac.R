@@ -1,6 +1,19 @@
-# ARoG: temporary script for running 1st level tests
+#' fCOuNT_RUN_1st_LEVEL_TESTS_mac
+#'
+#' @param data subject information/subject number (data.frame, n rows)
+#' @param fc functional connectivity matrices (3D array, n x k x k)
+#' @param test_type first level test type (t.one, t.two, regression, anova)(string)
+#' @param form formula for fist level test (string)
+#' @param var_idx variable of interest (string)
+#' @param nodes number of nodes for parallel calculations (integer)
+#' @returns first level summary results (p-values, test statistic, node connections)
+#' @export
+#'
+#' @examples
 
-fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
+# TODO: implement parallelization, probably ideal to create test-wise functions that can be used by all os-dependent routines
+
+fCOuNT_RUN_1ST_LEVEL_TESTS_mac = function(data, fc, test_type, form, var_idx, nodes) {
 
   k = dim(fc)[2]
   K = k * (k - 1) / 2

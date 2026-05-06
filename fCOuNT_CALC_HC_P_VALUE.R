@@ -9,39 +9,46 @@
 # Out: p - p value
 ################################################################################
 
-fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp) {
-  require(parallel)
-  
-  if(missing(n_sim)) { n_sim = 10000 }
-  
-  cl = makeCluster(detectCores()-1)
-  
-  # Export necessary objects and functions
-  script_path = normalizePath(
-    file.path(getwd(), "fCOuNT.R"),
-    mustWork = TRUE
-  )
-  
-  
-  clusterExport(cl, c("k1", "emp", "n_test", "script_path", "fCOuNT_HIGHER_CRITICISM"), 
-                envir = environment())
- 
-   clusterEvalQ(cl,source(script_path))
-  
-  hc_vals = unlist(parLapply(cl, 1:n_sim, function(i) {
-    fCOuNT_HIGHER_CRITICISM(
-      p = runif(n_test),
-      k1 = k1,
-      emp = emp)
-  }))
-  
-  stopCluster(cl)
-  
+fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp, parallel_opts) {
+
+  if(!parallel_opts$parallel) {
+    
+    # serial computation
+    hc_vals = rep(NA, n_sim)
+    for(i in 1 : n_sim) {
+      hc_vals[i] = fCOuNT_HIGHER_CRITICISM(p=runif(n_test),
+                                           k1=k1,
+                                           emp=emp) %>%
+        max(na.rm=T)
+    }
+    
+  } else {
+    
+    # determine number of nodes to used for parallel computation
+    if(is.na(parallel_opts$nodes)) {
+      nodes = detectCores()
+    } else {
+      nodes = parallel_opts$nodes
+    }
+    
+    if(parallel_opts$systype == "unix") {
+      hc_vals = unlist(mclapply(1:n_sim, function(i) {
+        fCOuNT_HIGHER_CRITICISM(p=runif(n_test),
+                                k1=k1,
+                                emp=emp) %>%
+          max(na.rm=T)
+        }, mc.cores = nodes))
+    } else {
+      #TODO: implement parallel for windows
+    }
+  }
+    
   p = rep(NA, length(hc))
-  for(i in 1:length(hc)) {
+  for(i in 1 : length(hc)) {
     p[i] = 1 - sum(hc[i] > hc_vals) / n_sim
   }
-  
+
   return(list(p=p, hc_crit=quantile(hc_vals, 0.95)))
+
 }
 

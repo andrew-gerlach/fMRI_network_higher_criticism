@@ -119,10 +119,10 @@ fCOuNT_GEN_TEST_DATA = function(n, net_def, mu, tau, seed) {
       idx2 = node_pair_table[rand_idx, 2]
 
       # inject sparse/weak signal
-      for(l in 1 : length(idx1)) {
+      for(l in 1 : length(rand_idx)) {
 
         # add signal to higher x (group2: 2 > 1, group3: 3 > 2, 1)
-        fc[, idx1, idx2] = fc[, idx1, idx2] + data$x * mu[net_pair]
+        fc[, idx1[l], idx2[l]] = fc[, idx1[l], idx2[l]] + data$x * mu[net_pair]
 
       }
 

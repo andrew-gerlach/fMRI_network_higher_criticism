@@ -70,6 +70,19 @@ results = data.frame(test=rep("g", M * 2)) %>%
   cbind(tmp_out$second_level_results) %>%
   rbind(results, .)
 
+### Time variable
+tmp_out = fCOuNT(data = tmp_in$data,
+                 test_type = "mlr",
+                 form = "fc ~ x + t + (1 | subj)",
+                 var = "t",
+                 net_def = tmp_in$net_def, 
+                 fc = tmp_in$fc,
+                 nsim = 1E6,
+                 seed = 135)
+results = data.frame(test=rep("t", M * 2)) %>%
+  cbind(tmp_out$second_level_results) %>%
+  rbind(results, .)
+
 ### Continuous variable
 tmp_out = fCOuNT(data = tmp_in$data,
                  test_type = "mlr",
@@ -80,7 +93,8 @@ tmp_out = fCOuNT(data = tmp_in$data,
                  nsim = 1E6,
                  seed = 135)
 results = data.frame(test=rep("x_int", M * 2)) %>%
-  cbind(tmp_out$second_level_results)
+  cbind(tmp_out$second_level_results) %>%
+  rbind(results, .)
 
 ### Categorical variable
 tmp_out = fCOuNT(data = tmp_in$data,

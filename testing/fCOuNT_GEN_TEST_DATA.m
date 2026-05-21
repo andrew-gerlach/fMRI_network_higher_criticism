@@ -1,13 +1,13 @@
-function [data, fc] = fCOuNT_generate_test_data(n, k, net_def, mu, tau, test_type, seed, fn)
+function [data, fc] = fCOuNT_GEN_TEST_DATA(n, k, net_def, mu, tau, seed, fn_label)
 % Function for generating test data
 % In:
-%   n       - number of subjects
-%   k       - number of nodes in parcellation
-%   net_def - network definition for nodes (length k)
-%   mu      - effect strength (1 per network pair)
-%   tau     - effect sparsity (1 per network pair)
-%   seed    - seed for replicability
-%   fn      - filename to save data to
+%   n         - number of subjects
+%   k         - number of nodes in parcellation
+%   net_def   - network definition for nodes (length k)
+%   mu        - effect strength (1 per network pair)
+%   tau       - effect sparsity (1 per network pair)
+%   seed      - seed for replicability
+%   fn_label  - filename to save data to
 %
 % Out:
 %   data - table with subject and group
@@ -16,11 +16,16 @@ function [data, fc] = fCOuNT_generate_test_data(n, k, net_def, mu, tau, test_typ
     % set seed for replicability
     rng(seed);
 
-    % data table with subject number and 2 groups
+    % data table with:
     subj  = (1:n)';
-    group = [zeros(n/2, 1); ones(n/2, 1)];   % assumes n is even
-    fc_fn = "testdata/subj_" + compose('%03d', subj) + "/subj_" + compose('%03d', subj) + "_" + fn + ".mat";
-    data  = table(subj, group, fc_fn);
+    x = [normrnd(0, 1, [2 * n / 3, 1]); normrnd(1, 1, [n / 3, 1])];
+    group2 = categorical([zeros(n / 2, 1); ones(n / 2, 1)]);
+    group3 = categorical([zeros(n / 3, 1); ones(n / 3, 1); 2 * ones(n / 3, 1)]);
+    age = normrnd(45, 8, [n, 1]);
+    sex = categorical(repmat(["F"; "M"], n / 2, 1));
+    site = categorical(repmat(["A"; "B"; "C"], n / 3, 1));
+    fc_fn = "testdata/subj_" + compose('%03d', subj) + "/subj_" + compose('%03d', subj) + "_" + fn_label + ".mat";
+    data  = table(subj, x, group2, group3, age, sex, site, fc_fn);
 
     % number of unique entries in upper triangle
     K = k * (k - 1) / 2;
@@ -87,7 +92,7 @@ function [data, fc] = fCOuNT_generate_test_data(n, k, net_def, mu, tau, test_typ
                 idx2 = randsample(find(net_def == networks(j)), 1, false);
 
                 % add signal to group 1 but not group 0
-                fc(:, idx1, idx2) = fc(:, idx1, idx2) + data.group * mu(net_pair);
+                fc(:, idx1, idx2) = fc(:, idx1, idx2) + data.x * mu(net_pair);
 
                 % enforce symmetry
                 fc(:, idx2, idx1) = fc(:, idx1, idx2);
@@ -100,14 +105,12 @@ function [data, fc] = fCOuNT_generate_test_data(n, k, net_def, mu, tau, test_typ
     % save matrices
     for i = 1 : n
         fc_matrix = squeeze(fc(i, :, :));
+        mkdir(fileparts(data.fc_fn{i}));
         save(data.fc_fn{i}, "fc_matrix")
     end
 
     % save data table
-    data_fn = "testdata/testdata_" + fn + "_" + test_type + ".csv";
+    data_fn = "testdata/testdata_" + fn_label + ".csv";
     writetable(data, data_fn)
-
-    % convert group to categorical (factor equivalent)
-    data.group = categorical(data.group);
 
 end

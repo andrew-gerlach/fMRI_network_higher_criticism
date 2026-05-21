@@ -1,6 +1,5 @@
 # Function for generating test data
 # In:  n - number of subjects
-#      k - number of nodes in parcellation
 #      net_def - network definition for nodes
 #      mu - effect strength (1 per network pair)
 #      tau - effect sparsity (1 per network pair)
@@ -8,36 +7,54 @@
 # Out: data - data frame of variables
 #      fc - connectivity matrices
 
-fCOuNT_generate_test_data = function(n, k, net_def, mu, tau, seed) {
-
+fCOuNT_GEN_TEST_DATA = function(n, net_def, mu, tau, seed) {
+  
   # set seed for replicability
   set.seed(seed)
-
-  # data frame with subject number and 2 groups
-  data = data.frame(subj = factor(1 : n),
-                    group = rep(0 : 1, each = n / 2))
-
-  # number of unique entries
+ 
+  # number of nodes and unique entries
+  k = net_def %>% length()
   K = k * (k - 1) / 2
+  
+  # check for compatibility in network definition/effects
+  m = net_def %>% unique() %>% length()
+  M = m * (m + 1) / 2
+  if(length(mu) != M) {
+    stop("Number of effect strengths provided (%i) does not match number of total network pairs (%i)", length(mu), M)
+  }
+  if(length(tau) != M) {
+    stop("Number of effect sparsities provided (%i) does not match number of total network pairs (%i)", length(tau), M)
+  }
 
   # initialize connectivity matrices, stacked by subject
   fc = array(NA, c(n, k, k))
-
+  
+  # adjust n for divisibility by 2 and 3
+  if(n %% 6 != 0) { 
+    n = n - n %% 6
+    warning("Adjusting n for divisibility into 2 and 3 groups")
+  }
+  
+  # initialize data frame with:
+  data = data.frame(subj = factor(1 : n),                               # subject ID
+                    x = c(rnorm(2 * n / 3, 0, 1), rnorm(n / 3, 1, 1)),  # continuous ind. var.
+                    group2 = factor(rep(0 : 1, each = n / 2)),          # 2-level ind. var.
+                    group3 = factor(rep(0 : 2, each = n / 3)),          # 3-level ind. var.
+                    age = rnorm(n, 45, 8),                              # continuous control
+                    sex = factor(rep(c("F", "M"), n / 2)),              # 2-level control
+                    site = factor(rep(c("A", "B", "C"), n / 3)))        # 3-level control
+                    
   # generate random symmetric matrices
   for(i in 1 : n) {
 
     # initialize subject matrix
     mat = matrix(0, k, k)
-
     # random values for upper triangle
     mat[upper.tri(mat)] = rnorm(K)
-
     # mirror to lower triangle
     mat = mat + t(mat)
-
     # Set diagonal to one
     diag(mat) = 1
-
     # Store in stacked array
     fc[i, , ] = mat
 
@@ -76,9 +93,9 @@ fCOuNT_generate_test_data = function(n, k, net_def, mu, tau, seed) {
         # random indices
         idx1 = sample((1 : k)[which(net_def == networks[i])], 1, replace = F)
         idx2 = sample((1 : k)[which(net_def == networks[j])], 1, replace = F)
-        # add signal to group 1 but not group 0
-        fc[, idx1, idx2] = fc[, idx1, idx2] + data$group * mu[net_pair]
-        fc[, idx2, idx1] = fc[, idx1, idx2]
+        
+        # add signal to higher x (group2: 2 > 1, group3: 3 > 2, 1)
+        fc[, idx1, idx2] = fc[, idx1, idx2] + data$x * mu[net_pair]
 
       }
 
@@ -86,9 +103,6 @@ fCOuNT_generate_test_data = function(n, k, net_def, mu, tau, seed) {
 
   }
 
-  # set group to factor after using as integer
-  data$group = factor(data$group)
-
-  return(list(data=data, fc=fc))
+  return(list(data=data, fc=fc, net_def=net_def))
 
 }

@@ -12,11 +12,10 @@
 fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp) {
 
   hc_vals = unlist(mclapply(1:n_sim, function(i) {
-    fCOuNT_HIGHER_CRITICISM(
-      p=runif(n_test),
-      k1=k1,
-      emp=emp,
-      qc_plot=FALSE)
+    fCOuNT_HIGHER_CRITICISM(p=runif(n_test),
+                            k1=k1,
+                            emp=emp) %>%
+      max(na.rm=T)
     }, mc.cores = detectCores()))
   p = rep(NA, length(hc))
   for(i in 1:length(hc)) {

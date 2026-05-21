@@ -32,8 +32,7 @@ fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp) {
     fCOuNT_HIGHER_CRITICISM(
       p = runif(n_test),
       k1 = k1,
-      emp = emp,
-      qc_plot = FALSE)
+      emp = emp)
   }))
   
   stopCluster(cl)

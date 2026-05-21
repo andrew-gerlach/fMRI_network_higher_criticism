@@ -3,17 +3,12 @@
 # In:  p - p-values to be highly criticized
 #      k1 - fraction or number of p values to keep
 #      emp - flag for using variance of empirical distribution
-#      qc_plot - flag to plot summary items
 # Out: hc - maximum HC statistic
 ################################################################################
 
 # TODO: add option for not excluding low p values
 
-fCOuNT_HIGHER_CRITICISM = function(p, k1, emp, qc_plot) {
-
-  # Assume variance of theoretical null
-  if(missing(emp)) { emp = FALSE }
-  if(missing(qc_plot)) { qc_plot = FALSE }
+fCOuNT_HIGHER_CRITICISM = function(p, k1, emp) {
 
   # Removes NAs and sort p values in ascending order
   p = p[!is.na(p)]
@@ -45,22 +40,7 @@ fCOuNT_HIGHER_CRITICISM = function(p, k1, emp, qc_plot) {
   # Remove points below Bonferroni correction
   hc[p_sorted < (0.05 / n)] = 0
 
-  # Plot HC
-  if(qc_plot) {
-    qc_plots = data.frame(index=(i_vals / n), hc=hc) %>%
-      ggplot(aes(index, hc)) +
-      geom_point(color="blue") +
-      xlab("Fraction of Tests (ordered by p-value)") +
-      ylab("HC Statistic") +
-      theme(strip.background=element_blank(),
-            panel.background=element_blank(),
-            axis.line=element_line(),
-            axis.ticks=element_blank())
-  } else {
-    qc_plots = NULL
-  }
-
-  return(list(hc=max(hc), qc_plots=qc_plots))
+  return(hc)
 
 }
 

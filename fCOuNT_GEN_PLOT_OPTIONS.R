@@ -3,8 +3,8 @@ fCOuNT_GEN_PLOT_OPTIONS = function(mcc, font_size, label_height) {
 
   # initialize
   plot_opts = list(mcc=NA,
-                      font_size=NA,
-                      label_height=NA)
+                   font_size=NA,
+                   label_height=NA)
 
   # set defaults for missing
   if(missing(mcc) | is.null(mcc)) {

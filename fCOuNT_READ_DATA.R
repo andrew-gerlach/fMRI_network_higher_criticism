@@ -1,4 +1,9 @@
-
+#' Routine for reading in data
+#'
+#' NOTE: highly recommend using an extant data frame rather than reading in from
+#' file to avoid class errors and allow better control
+#'
+#' @param data name of data frame object or file
 
 fCOuNT_READ_DATA = function(data) {
 

@@ -5,7 +5,9 @@
 #' @param test_type first level test type (t.one, t.two, regression, anova)(string)
 #' @param form formula for fist level test (string)
 #' @param var_idx variable of interest (string)
+#'
 #' @returns first level summary results (p-values, test statistic, node connections)
+#'
 #' @export
 #'
 #' @examples

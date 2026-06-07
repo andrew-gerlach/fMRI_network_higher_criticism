@@ -6,12 +6,14 @@
 #' @param data data table containing subject level variables (data.frame, n rows)
 #' @param test_type description of statistical test type (string)
 #' @param form formula for statistical test (formula)
+#' @param var_idx index of variable of interest in statistical test (integer)
 #' @param net_def network definition for nodes (vector)
 #' @param fc functional connectivity matrices (3D array, n x k x k)
 #' @param results_plot flag to create circle plot of results (boolean)
-#' @param parallel_opts list of parallel computing control options
 #' @param plot_opts list of results plot control options
+#' @param parallel_opts list of parallel computing control options
 #' @param mcc option of multiple comparisons correction (string: fdr, bonferroni, none)
+#' @param hc_opts list of higher criticism calculation options
 
 fCOuNT_MAIN = function(data, test_type, form, var_idx, net_def, fc, results_plot, plot_opts, parallel_opts, mcc, hc_opts) {
 

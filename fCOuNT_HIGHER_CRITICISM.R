@@ -1,10 +1,8 @@
-################################################################################
-# fCOuNT_HIGHER_CRITICISM calculates the higher criticism statistic on a set of p values
-# In:  p - p-values to be highly criticized
-#      k1 - fraction or number of p values to keep
-#      emp - flag for using variance of empirical distribution
-# Out: hc - maximum HC statistic
-################################################################################
+#' calculates the higher criticism statistic on a set of p values
+#'
+#' @param p p-values from mass univariate tests (numeric vector)
+#' @param k1 fraction or number of p values to keep (numeric)
+#' @param emp flag for using variance of empirical distribution (boolean)
 
 # TODO: add option for not excluding low p values
 

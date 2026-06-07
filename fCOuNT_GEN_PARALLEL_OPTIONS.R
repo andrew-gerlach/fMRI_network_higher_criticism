@@ -1,3 +1,7 @@
+#' Generate list of higher criticism options
+#'
+#' @param parallel flag to use parallel calculations (boolean)
+#' @param nodes number of nodes to use for parallel calculations (integer)
 
 fCOuNT_GEN_PARALLEL_OPTIONS = function(parallel, nodes) {
 

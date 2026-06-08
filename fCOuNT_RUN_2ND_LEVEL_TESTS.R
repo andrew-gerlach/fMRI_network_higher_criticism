@@ -4,7 +4,7 @@
 #' node1, node2, direction of test, test statistic, and p value (n rows)
 #' @param net_def vector defining which network each node belongs to (length k)
 #' @param hc_opts options for higher criticism
-#' @param parallel_opts list of parallel computing control options 
+#' @param parallel_opts list of parallel computing control options
 #'
 #' @returns second_level_results date frame containing second level test results with columns
 #' for network1, network2, direction of test, HC statistic, and p value
@@ -20,7 +20,7 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, par
               panel.background=element_blank(),
               axis.line=element_line(),
               axis.ticks=element_blank())
-  
+
   # pull network info from net_def
   networks = unique(net_def[!is.na(net_def)])
   m = length(networks)
@@ -88,18 +88,19 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, par
                                    emp=hc_opts$emp,
                                    parallel_opts=parallel_opts)
       second_level_results$p[i : (i + 1)] = tmp$p
-      
+
       ### Quality control plots
 
       # Low direction p value histogram
-      qc_plots[[(i + 1) / 2]][[1]] = tmp_data %>% 
+      qc_plots[[(i + 1) / 2]][[1]] = tmp_data %>%
         ggplot(aes(p_low, after_stat(density))) +
-        geom_histogram(color="black", bins=round(n_tests / 10)) +
+        geom_histogram(color="black", bins=round(n_tests / 20)) +
         geom_hline(yintercept=1, color="red", size=2) +
-        xlab("First level p values (low direction)") +
+        xlab("First level p values") +
         ylab("Density") +
+        ggtitle(paste0(networks[m1], "-", networks[m2], " p-value Histogram (low direction)")) +
         dpt
-        
+
       # Low direction HC plot
       qc_plots[[(i + 1) / 2]][[2]] = tmp_data %>%
         arrange(p_low) %>%
@@ -109,20 +110,22 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, par
         geom_point() +
         geom_line() +
         geom_hline(yintercept=tmp$hc_crit, color="red", size=2) +
-        xlab("Test index (sorted by low p-values)") +
+        xlab("Test index (sorted by p-values)") +
         ylab("Higher Criticism statistic") +
+        ggtitle(paste0(networks[m1], "-", networks[m2], " HC plot (low direction)")) +
         dpt
-        
+
       # High direction p value histogram
-      qc_plots[[(i + 1) / 2]][[3]] = tmp_data %>% 
+      qc_plots[[(i + 1) / 2]][[3]] = tmp_data %>%
         ggplot(aes(p_high, after_stat(density))) +
-        geom_histogram(color="black", bins=round(n_tests / 10)) +
+        geom_histogram(color="black", bins=round(n_tests / 20)) +
         geom_hline(yintercept=1, color="red", size=2) +
-        xlab("First level p values (high direction)") +
+        xlab("First level p values") +
         ylab("Density") +
+        ggtitle(paste0(networks[m1], "-", networks[m2], " p-value Histogram (high direction)")) +
         dpt
-      
-      # Low direction HC plot
+
+      # High direction HC plot
       qc_plots[[(i + 1) / 2]][[4]] = tmp_data %>%
         arrange(p_high) %>%
         head(length(hc_high)) %>%
@@ -131,8 +134,9 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, par
         geom_point() +
         geom_line() +
         geom_hline(yintercept=tmp$hc_crit, color="red", size=2) +
-        xlab("Test index (sorted by high p-values)") +
+        xlab("Test index (sorted by p-values)") +
         ylab("Higher Criticism statistic") +
+        ggtitle(paste0(networks[m1], "-", networks[m2], " HC plot (high direction)")) +
         dpt
 
     }

@@ -9,7 +9,7 @@
 #'
 #' @return first_level_results first level summary results (p-values, test statistic, node connections)
 #'
-#' @examples
+#' @export
 
 # TODO: implement parallelization, probably ideal to create test-wise functions that can be used by all os-dependent routines
 

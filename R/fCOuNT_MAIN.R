@@ -28,11 +28,13 @@ fCOuNT_MAIN = function(data, test_type, form, var_idx, net_def, fc, results_plot
   if(!parallel_opts$parallel) {
     first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx)
   } else {
-    if(parallel_opts$systype == "unix") {
-      first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS_mac(data, fc, test_type, form, var_idx, parallel_opts$nodes)
-    } else {
-      first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS_windows(data, fc, test_type, form, var_idx, parallel_opts$nodes)
-    }
+    warning("Parallel option for first level test is still under development, using serial calculation")
+    first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx)
+    #if(parallel_opts$systype == "unix") {
+    #  first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS_mac(data, fc, test_type, form, var_idx, parallel_opts$nodes)
+    #} else {
+    #  first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS_windows(data, fc, test_type, form, var_idx, parallel_opts$nodes)
+    #}
   }
 
   # Step 2 calculate network level HC statistics

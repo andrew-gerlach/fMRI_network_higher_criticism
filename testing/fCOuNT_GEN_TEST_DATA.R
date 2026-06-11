@@ -8,14 +8,14 @@
 #      fc - connectivity matrices
 
 fCOuNT_GEN_TEST_DATA = function(n, net_def, mu, tau, seed) {
-  
+
   # set seed for replicability
   set.seed(seed)
- 
+
   # number of nodes and unique entries
   k = net_def %>% length()
   K = k * (k - 1) / 2
-  
+
   # check for compatibility in network definition/effects
   m = net_def %>% unique() %>% length()
   M = m * (m + 1) / 2
@@ -28,13 +28,13 @@ fCOuNT_GEN_TEST_DATA = function(n, net_def, mu, tau, seed) {
 
   # initialize connectivity matrices, stacked by subject
   fc = array(NA, c(n, k, k))
-  
+
   # adjust n for divisibility by 2 and 3
-  if(n %% 6 != 0) { 
+  if(n %% 6 != 0) {
     n = n - n %% 6
     warning("Adjusting n for divisibility into 2 and 3 groups")
   }
-  
+
   # initialize data frame with:
   data = data.frame(subj = factor(1 : n),                               # subject ID
                     x = c(rnorm(2 * n / 3, 0, 1), rnorm(n / 3, 1, 1)),  # continuous ind. var.
@@ -43,7 +43,7 @@ fCOuNT_GEN_TEST_DATA = function(n, net_def, mu, tau, seed) {
                     age = rnorm(n, 45, 8),                              # continuous control
                     sex = factor(rep(c("F", "M"), n / 2)),              # 2-level control
                     site = factor(rep(c("A", "B", "C"), n / 3)))        # 3-level control
-                    
+
   # generate random symmetric matrices
   for(i in 1 : n) {
 
@@ -75,27 +75,54 @@ fCOuNT_GEN_TEST_DATA = function(n, net_def, mu, tau, seed) {
 
       net_pair = net_pair + 1
 
-      if(mu[net_pair] == 0) {
-        # skip if no signal in this network pair
-        next
+      # skip if no signal in this network pair
+      if(mu[net_pair] == 0) { next }
+
+      # determine the number of node pairs in network pair and build a table for sampling
+      if(i == j) {
+        
+        K_net = sum(net_def == networks[i]) * (sum(net_def == networks[j]) - 1) / 2
+        # indices of nodes in network
+        ii = (1 : k)[which(net_def == networks[i])]
+        # table of unique node pairs
+        node_pair_table = matrix(NA, nrow=K_net, ncol=2)
+        npt_idx = 0
+        for(i1 in 1 : (length(ii) - 1)) {
+          for(j1 in (i1 + 1) : length(ii)) {
+            npt_idx = npt_idx + 1
+            node_pair_table[npt_idx, ] = c(ii[i1], ii[j1])
+          }
+        }
+        
       } else {
-        # otherwise determine the number of node pairs in network pair
-        if(i == j) {
-          K_net = sum(net_def == networks[i]) * (sum(net_def == networks[j]) - 1) / 2
-        } else {
-          K_net = sum(net_def == networks[i]) * sum(net_def == networks[j])
+        
+        K_net = sum(net_def == networks[i]) * sum(net_def == networks[j])
+        # indices of nodes in networks
+        ii = (1 : k)[which(net_def == networks[i])]
+        jj = (1 : k)[which(net_def == networks[j])]
+        # table of unique node pairs
+        node_pair_table = matrix(NA, nrow=K_net, ncol=2)
+        npt_idx = 0
+        for(i1 in 1 : length(ii)) {
+          for(j1 in 1 : length(jj)) {
+            npt_idx = npt_idx + 1
+            node_pair_table[npt_idx, ] = c(ii[i1], jj[j1])
+          }
         }
       }
 
-      # inject sparse/weak signal
-      for(l in 1 : round(tau[net_pair] * K_net)) {
+      # random indices
+      rand_idx = sample(1 : K_net,
+                        round(tau[net_pair] * K_net),
+                        replace = F)
+      idx1 = node_pair_table[rand_idx, 1]
+      idx2 = node_pair_table[rand_idx, 2]
 
-        # random indices
-        idx1 = sample((1 : k)[which(net_def == networks[i])], 1, replace = F)
-        idx2 = sample((1 : k)[which(net_def == networks[j])], 1, replace = F)
-        
+      # inject sparse/weak signal
+      for(l in 1 : length(rand_idx)) {
+
         # add signal to higher x (group2: 2 > 1, group3: 3 > 2, 1)
-        fc[, idx1, idx2] = fc[, idx1, idx2] + data$x * mu[net_pair]
+        fc[, idx1[l], idx2[l]] = fc[, idx1[l], idx2[l]] + data$x * mu[net_pair]
 
       }
 

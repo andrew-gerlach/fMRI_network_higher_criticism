@@ -1,16 +1,23 @@
+#' Formula generation and checking
+#'
+#' @param data data frame containing all variables in formula
+#' @param test_type type of statistical test (string)
+#' @param form formula for statistical test (string or formula)
+#' @param var variable of interest (string)
+#' @param controls additional control variables of no interest to include in statistical test (string, vector)
 
 fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 
   # flag for presence of interaction
   interaction = F
-  
+
   # Construct formula if needed
   if(is.null(form)) {
 
     if(test_type != "t.one") {
-      
+
       # TODO: need more logic here to construct formula if var and controls supplied but not form
-      
+
     }
 
   } else if(is.character(form) | is_formula(form)) {
@@ -29,7 +36,7 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
       str_split("~", simplify=T)
     y = tmp[1]
     x = str_split(tmp[2], "\\+", simplify=T)
-    
+
     # separate out any interactions
     int_term = x[grepl("\\*", x)]
     # check for multiple interactions
@@ -50,7 +57,7 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
       x = c(x[seq_len(idx - 1)], z, x[seq(idx + 1, length(x))], "interaction")
       x = x[!duplicated(x)]
     }
-    
+
     # remove random effects
     x = x[!grepl("\\|", x)]
 
@@ -66,14 +73,14 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
   }
 
   # Determine index for variable of interest
-  
+
   if(test_type == "t.one") {
-    
+
     # ignore variable of interest for a one-sided t-test
     var_idx = NULL
-    
+
   } else {
-    
+
     if(is.null(var)) {
 
       # get FC index assuming outcome is variable of interest
@@ -89,14 +96,14 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 
       # Ensure variable exists in data frame
       if(var == "intercept") {
-        
+
         var_idx = 0
-        
+
       } else if(var == "interaction") {
-        
+
         # interactions always come last and only one is allowed
         var_idx = length(x)
-        
+
       } else if(var %in% names(data)) {
 
         # get variable of interest index if FC is outcome
@@ -112,10 +119,10 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
         stop("Variable of interest does not exist in the data!")
 
       }
-      
+
     }
-    
-    # check for categorical variables with more than two levels and increment as needed 
+
+    # check for categorical variables with more than two levels and increment as needed
     if(var_idx > 1) {
       for(col in x[1 : (var_idx - 1)]) {
         tmp = data %>% pull(col)

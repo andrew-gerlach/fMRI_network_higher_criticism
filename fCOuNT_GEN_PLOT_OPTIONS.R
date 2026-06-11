@@ -1,3 +1,8 @@
+#' Generate list of higher criticism options
+#'
+#' @param mcc option for multiple comparisons correction (string)
+#' @param font_size font size for network labels (numeric)
+#' @param label_height thickness of network label ring (numeric)
 
 fCOuNT_GEN_PLOT_OPTIONS = function(mcc, font_size, label_height) {
 

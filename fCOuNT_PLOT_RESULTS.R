@@ -4,7 +4,7 @@
 #' network1, network2, direction of test, HC value, and p value (M rows)
 #' @param plot_opts list containing mcc option, font size for circle graph, and height for label row
 #'
-#' @returns
+#' @return
 #' @export results_plot circle plot of network
 #'
 #' @examples
@@ -60,7 +60,7 @@ fCOuNT_PLOT_RESULTS = function(second_level_results, plot_opts) {
                  (network1 == networks[net2] & network2 == networks[net1]),
                  direction == "high") %>%
           pull(p)
-        
+
         # Skip if there are no results for the high direction (e.g., anova)
         if(is.na(p)) { next }
 

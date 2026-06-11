@@ -4,6 +4,10 @@
 #' file to avoid class errors and allow better control
 #'
 #' @param data name of data frame object or file
+#'
+#' @return data study data frame
+#'
+#' @export
 
 fCOuNT_READ_DATA = function(data) {
 

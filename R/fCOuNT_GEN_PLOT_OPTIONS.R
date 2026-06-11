@@ -3,6 +3,10 @@
 #' @param mcc option for multiple comparisons correction (string)
 #' @param font_size font size for network labels (numeric)
 #' @param label_height thickness of network label ring (numeric)
+#'
+#' @return plot_opts list of plot options (mcc, font_size, and label_height)
+#'
+#' @export
 
 fCOuNT_GEN_PLOT_OPTIONS = function(mcc, font_size, label_height) {
 

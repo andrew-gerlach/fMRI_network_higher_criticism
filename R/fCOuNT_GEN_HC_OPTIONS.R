@@ -3,6 +3,10 @@
 #' @param k1 fraction or number of p values to keep (numeric)
 #' @param emp flag for using variance of empirical distribution rather than theoretical distribution (boolean)
 #' @param n_sim number of simulations to run (integer)
+#'
+#' @return hc_opts list of HC options (k1, emp, nsim)
+#'
+#' @export
 
 fCOuNT_GEN_HC_OPTIONS = function(k1, emp, nsim) {
 

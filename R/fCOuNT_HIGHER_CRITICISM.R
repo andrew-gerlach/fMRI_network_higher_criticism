@@ -3,6 +3,10 @@
 #' @param p p-values from mass univariate tests (numeric vector)
 #' @param k1 fraction or number of p values to keep (numeric)
 #' @param emp flag for using variance of empirical distribution (boolean)
+#'
+#' @return hc higher criticism value for observed p values (numeric)
+#'
+#' @export
 
 # TODO: add option for not excluding low p values
 

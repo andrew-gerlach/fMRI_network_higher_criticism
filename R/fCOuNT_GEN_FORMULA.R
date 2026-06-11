@@ -5,6 +5,11 @@
 #' @param form formula for statistical test (string or formula)
 #' @param var variable of interest (string)
 #' @param controls additional control variables of no interest to include in statistical test (string, vector)
+#'
+#' @return form formula for statistial test (formula)
+#' @return var_idx index of variable of interset in model output (integer)
+#'
+#' @export
 
 fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 

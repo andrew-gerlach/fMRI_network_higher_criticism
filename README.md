@@ -1,1 +1,15 @@
-# fMRI_network_higher_criticism
+# fMRI Connectome Omnibus Network Testing
+
+This packages implements a two level omnibus approach called Higher Criticism
+for use in making connectome-basd inferences at the network level. This approach
+utilizes the rich data contained in functional connectivity matrices with first-
+level mass univariate testing. The second-level testing organizes these matrices
+along network boundaries and asks the fundamental question "in this network
+pair, is there evidence for a signal?" Higher criticism is optimal for detecting
+rare and weak effects, making it ideal for investigating brain associations of
+behavior. Further, this method is flexible to the questions it can answer,
+requiring only that the first level tests result in a typically distributed
+p-value under null conditions. Essentially, many-nodes pairs within a network-
+pair are treated as observations within that network-pair. This allows us to
+investigate network signatures without averaging over large swaths of cortex,
+which is known to often wipe out the subtle effects present in connectome data.

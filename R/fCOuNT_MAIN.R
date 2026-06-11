@@ -1,4 +1,4 @@
-#' Primary routine
+#' Primary routine for two-level testing
 #'
 #' This is the primary routine to drive network inference on functional
 #' connectomes using higher criticism
@@ -14,6 +14,13 @@
 #' @param parallel_opts list of parallel computing control options
 #' @param mcc option of multiple comparisons correction (string: fdr, bonferroni, none)
 #' @param hc_opts list of higher criticism calculation options
+#'
+#' @return first_level_results table of first level test results for verification
+#' @return second_level_results table of second level test results for primary inference
+#' @return qc_plots list of quality control plots for verifying distribution of p-values and visualizing HC calculation (4 per network pair)
+#' @return results_plots chord diagram summarizing second level test results
+#'
+#' @export
 
 fCOuNT_MAIN = function(data, test_type, form, var_idx, net_def, fc, results_plot, plot_opts, parallel_opts, mcc, hc_opts) {
 

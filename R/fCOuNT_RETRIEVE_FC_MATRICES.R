@@ -3,6 +3,10 @@
 #' @param data data frame containing subject level variables (n rows)
 #' @param fc_col_name column name in data with subject level FC files (string)
 #' @param fc_obj_name name of FC matrix object in storage structure (string)
+#'
+#' @return fc 3D FC array subject x node x node
+#'
+#' @export
 
 fCOuNT_RETRIEVE_FC_MATRICES = function(data, fc_col_name, fc_obj_name) {
 

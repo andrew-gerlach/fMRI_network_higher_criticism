@@ -4,10 +4,9 @@
 #' network1, network2, direction of test, HC value, and p value (M rows)
 #' @param plot_opts list containing mcc option, font size for circle graph, and height for label row
 #'
-#' @return
-#' @export results_plot circle plot of network
+#' @return results_plot chord diagram of second level results
 #'
-#' @examples
+#' @export
 
 fCOuNT_PLOT_RESULTS = function(second_level_results, plot_opts) {
 

@@ -1,7 +1,7 @@
-#' Primary routine
+#' Interface routine to process and prepare inputs
 #'
-#' This is the primary routine to drive network inference on functional
-#' connectomes using higher criticism
+#' This routine processes inputs and prepares for the primary calculation in
+#' fCOuNT_MAIN
 #'
 #' @param data data table containing subject level variables (string, data.frame, n rows)
 #' @param test_type description of statistical test type (string)
@@ -24,6 +24,13 @@
 #' @param font_size font size for network labels on plot (optional, numeric)
 #' @param label_height height of label track on plot (optional, numeric)
 #' @param seed random seed for reproducibility (optional, numeric)
+#'
+#' @return first_level_results table of first level test results for verification
+#' @return second_level_results table of second level test results for primary inference
+#' @return qc_plots list of quality control plots for verifying distribution of p-values and visualizing HC calculation (4 per network pair)
+#' @return results_plots chord diagram summarizing second level test results
+#'
+#' @export
 
 fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, mcc, parallel, nodes, k1, emp, nsim, results_plot, font_size, label_height, seed) {
 
@@ -44,7 +51,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   if(missing(parallel)) { parallel = T }
   if(missing(nodes)) { nodes = NULL }
   parallel_opts = fCOuNT_GEN_PARALLEL_OPTIONS(parallel, nodes)
-  
+
   # Read in data file if needed
   data = fCOuNT_READ_DATA(data)
 

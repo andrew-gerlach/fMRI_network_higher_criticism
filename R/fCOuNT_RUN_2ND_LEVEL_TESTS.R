@@ -6,11 +6,10 @@
 #' @param hc_opts options for higher criticism
 #' @param parallel_opts list of parallel computing control options
 #'
-#' @returns second_level_results date frame containing second level test results with columns
+#' @return second_level_results data frame containing second level test results with columns
 #' for network1, network2, direction of test, HC statistic, and p value
-#' @export
 #'
-#' @examples
+#' @export
 
 fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, parallel_opts) {
 

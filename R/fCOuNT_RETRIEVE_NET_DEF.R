@@ -4,7 +4,10 @@
 #' containing this information
 #' @param net_def_col name of column in net_def file containing the network
 #' assignments (only need if more than one column exists in file)
-
+#'
+#' @return net_def vector containing node-wise network assignments
+#'
+#' @export
 
 fCOuNT_RETRIEVE_NET_DEF = function(net_def, net_def_col) {
 

@@ -57,7 +57,7 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
 
   # Check that test type is supported
   test_type = tolower(test_type)
-  if(!(test_type %in% c("t.one", "t.two", "anova", "regression", "ancova", "mlr"))) {
+  if(!(test_type %in% c("t.one", "t.two", "anova", "lr", "ancova"))) {
     stop(paste("Test type", test_type, "is not currently supported"))
   }
 

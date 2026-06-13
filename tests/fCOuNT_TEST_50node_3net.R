@@ -15,7 +15,7 @@ tmp_in = fCOuNT_GEN_TEST_DATA(n, net_def, mu, tau, seed_in)
 ### One-sample t-test
 tmp_out = fCOuNT(data = tmp_in$data,
                  test_type = "t.one",
-                 net_def = tmp_in$net_def, 
+                 net_def = tmp_in$net_def,
                  fc = tmp_in$fc,
                  nsim = 1E6,
                  seed = 135)
@@ -25,8 +25,8 @@ results = data.frame(test=rep("t.one", M * 2)) %>%
 ### Two-sample t-test
 tmp_out = fCOuNT(data = tmp_in$data,
                  test_type = "t.two",
-                 form = "fc ~ group2", 
-                 net_def = tmp_in$net_def, 
+                 form = "fc ~ group2",
+                 net_def = tmp_in$net_def,
                  fc = tmp_in$fc,
                  nsim = 1E6,
                  seed = 135)
@@ -37,8 +37,8 @@ results = data.frame(test=rep("t.two", M * 2)) %>%
 ### ANOVA
 tmp_out = fCOuNT(data = tmp_in$data,
                  test_type = "anova",
-                 form = "fc ~ group3", 
-                 net_def = tmp_in$net_def, 
+                 form = "fc ~ group3",
+                 net_def = tmp_in$net_def,
                  fc = tmp_in$fc,
                  nsim = 1E6,
                  seed = 135)
@@ -48,13 +48,13 @@ results = data.frame(test=rep("anova", M * 2)) %>%
 
 ### Linear regression
 tmp_out = fCOuNT(data = tmp_in$data,
-                 test_type = "regression",
-                 form = "fc ~ x", 
-                 net_def = tmp_in$net_def, 
+                 test_type = "lr",
+                 form = "fc ~ x",
+                 net_def = tmp_in$net_def,
                  fc = tmp_in$fc,
                  nsim = 1E6,
                  seed = 135)
-results = data.frame(test=rep("regression", M * 2)) %>%
+results = data.frame(test=rep("lr", M * 2)) %>%
   cbind(tmp_out$second_level_results) %>%
   rbind(results, .)
 

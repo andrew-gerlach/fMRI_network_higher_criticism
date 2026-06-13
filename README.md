@@ -14,6 +14,19 @@ pair are treated as observations within that network-pair. This allows us to
 investigate network signatures without averaging over large swaths of cortex,
 which is known to often wipe out the subtle effects present in connectome data.
 
+# Github installation
+
+```r
+# Ensure devtools is loaded
+library(devtools)
+
+# Install (once)
+devtools::install_github("username/fCOuNT")
+
+# Load (every session)
+library(fCOuNT)
+```
+
 # Usage
 
 The fCOuNT routine is desgined as wrapper function to control most standard use

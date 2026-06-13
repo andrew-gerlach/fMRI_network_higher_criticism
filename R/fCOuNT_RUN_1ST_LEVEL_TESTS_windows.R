@@ -2,7 +2,7 @@
 #'
 #' @param data subject information/subject number (n subject)(data.frame, n rows)
 #' @param fc functional connectivity matrices (3D array, n x k x k)
-#' @param test_type first level test type (t.one, t.two, regression, anova)(string)
+#' @param test_type first level test type (t.one, t.two, lr, anova)(string)
 #' @param form formula for fist level test (string)
 #' @param var_idx variable of interest (string)
 #' @param nodes number of nodes for parallel calculations (integer)

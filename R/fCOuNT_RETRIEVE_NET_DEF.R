@@ -11,7 +11,7 @@
 
 fCOuNT_RETRIEVE_NET_DEF = function(net_def, net_def_col) {
 
-  if(!is.vector(net_def) | length(net_def) == 1) {
+  if(length(net_def) == 1) {
 
     # read in file name is provided
     if(is.character(net_def)){

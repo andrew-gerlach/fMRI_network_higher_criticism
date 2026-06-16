@@ -59,6 +59,31 @@ then the column with the network definitions must be provided (`net_def_col`)
     variable in the formula is the variable of interest (if FC is the outcome)
     or FC is the variable of interest if `fc` is included as an independent variable.
 
+Example usage with pre-loaded FC matrices and network definitions:
+
+```r
+results = fCOuNT(data = data,            # study data frame
+                 fc = fc,                # 3D FC matrix
+                 net_def = net_def,      # vector of node-wise network assignments
+                 test_type = "t.two",    # two group t-test
+                 form = "fc ~ group",    # formula for t-test, group must be column of data
+                 var = "group")
+```
+
+Example usage with FC matrices read from matlab files and network defintions
+read from Excel spreadsheet:
+
+```r
+results = fCOuNT(data = data,            # study data frame
+                 fc_col_name = "fc_file" # column in data with path to subject's FC file
+                 fc_obj_name = "conn_matrix" # name of matlab object containing FC matrix when loaded from .m file
+                 net_def = net_def,      # path to file containing node-wise network assignemnts
+                 net_def_col = "yeo7_net" # name of column in net_def file containing network assignment
+                 test_type = "lr",       # linear regression
+                 form = "fc ~ age + sex + x" # regression formula; age, sex, and x contained in data
+                 var = "x")
+```
+
 # Package improvements
 
 Current plans to improve the fCOuNT package are:

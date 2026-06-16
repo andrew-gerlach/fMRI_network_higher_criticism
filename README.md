@@ -59,3 +59,33 @@ then the column with the network definitions must be provided (`net_def_col`)
     variable in the formula is the variable of interest (if FC is the outcome)
     or FC is the variable of interest if `fc` is included as an independent variable.
 
+# Package improvements
+
+Current plans to improve the fCOuNT package are:
+
+1. Automated network definitions for common parcellations: Currently network
+definitions are defined by the user. This allows for a maximum flexibility in
+selecting both the nodal parcellation that was used to generate the FC matrices
+and the network parcellation that is used to define the node network assignments.
+However, we will add automated network assignments for Schaefer and Shen
+nodal parcellations and Yeo 7 and 17 network parcellations. If you would like
+other nodal and network parcellations added, please let me know.
+2. Parallelization improvements: Currently, only first-level tests are able to
+take advantage of parallelization and only with unix-based systems (e.g. macOS).
+The p-value calculation for the higher criticism statistic will also be
+parallelized and parallel capabilities will be added for Windows.
+3. Flexible first level tests: Currently, only the predefined first level tests
+(t-tests, ANOVA, and linear regression) can be used, but future extension will
+allow for a user-defined module to implement other tests. Additionally, if you'd
+like a specific test type added to the built-in options, please let me know.
+4. Documentation: I'm currently working on a vignette to make this package as
+accessible as possible for users of all backgrounds. Please let me know what
+could use more explanation!
+
+I welcome any and all feedback and will be constantly working to improve this
+package throughout 2026. Please let me know how I can make fCOuNT work for you!
+
+Andrew Gerlach
+Assistant Professor of Psychiatry and Bioengineering
+University of Pittsburgh
+gerlachar@upmc.edu

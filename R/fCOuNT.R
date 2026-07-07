@@ -34,14 +34,8 @@
 
 fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, mcc, parallel, nodes, k1, emp, nsim, results_plot, font_size, label_height, seed) {
 
-  # packages: tidyverse, stringr, rlang, tools, readxl, R.matlab
-  packages = c("tidyverse", "stringr", "rlang", "tools", "readxl", "R.matlab", "xfun", "parallel", "circlize", "lmerTest")
-  for(p in packages) {
-    if(!require(p, character.only=T)) {
-      install.packages(p)
-    }
-    library(p, character.only=T)
-  }
+  # Load required packages
+  fCOuNT_LOAD_PACKAGES()
 
   # Set seed if applied
   # TODO: seems like the results are still stochastic, related to parallelization maybe??

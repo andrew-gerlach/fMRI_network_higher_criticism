@@ -21,7 +21,7 @@ which is known to often wipe out the subtle effects present in connectome data.
 library(devtools)
 
 # Install (once)
-devtools::install_github("username/fCOuNT")
+devtools::install_github("andrew-gerlach/fCOuNT")
 
 # Load (every session)
 library(fCOuNT)

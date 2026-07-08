@@ -11,7 +11,7 @@ fCOuNT_RUN_1ST_LEVEL_TESTS_windows(data, fc, test_type, form, var_idx, nodes)
 
 \item{fc}{functional connectivity matrices (3D array, n x k x k)}
 
-\item{test_type}{first level test type (t.one, t.two, regression, anova)(string)}
+\item{test_type}{first level test type (t.one, t.two, lr, anova)(string)}
 
 \item{form}{formula for fist level test (string)}
 

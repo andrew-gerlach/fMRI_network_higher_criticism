@@ -94,7 +94,7 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, par
       qc_plots[[(i + 1) / 2]][[1]] = tmp_data %>%
         ggplot(aes(p_low, after_stat(density))) +
         geom_histogram(color="black", bins=round(n_tests / 20)) +
-        geom_hline(yintercept=1, color="red", size=2) +
+        geom_hline(yintercept=1, color="red", linewidth=2) +
         xlab("First level p values") +
         ylab("Density") +
         ggtitle(paste0(networks[m1], "-", networks[m2], " p-value Histogram (low direction)")) +
@@ -108,7 +108,7 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, par
         ggplot(aes(index, HC)) +
         geom_point() +
         geom_line() +
-        geom_hline(yintercept=tmp$hc_crit, color="red", size=2) +
+        geom_hline(yintercept=tmp$hc_crit, color="red", linewidth=2) +
         xlab("Test index (sorted by p-values)") +
         ylab("Higher Criticism statistic") +
         ggtitle(paste0(networks[m1], "-", networks[m2], " HC plot (low direction)")) +
@@ -118,7 +118,7 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, par
       qc_plots[[(i + 1) / 2]][[3]] = tmp_data %>%
         ggplot(aes(p_high, after_stat(density))) +
         geom_histogram(color="black", bins=round(n_tests / 20)) +
-        geom_hline(yintercept=1, color="red", size=2) +
+        geom_hline(yintercept=1, color="red", linewidth=2) +
         xlab("First level p values") +
         ylab("Density") +
         ggtitle(paste0(networks[m1], "-", networks[m2], " p-value Histogram (high direction)")) +
@@ -132,7 +132,7 @@ fCOuNT_RUN_2ND_LEVEL_TESTS = function(first_level_results, net_def, hc_opts, par
         ggplot(aes(index, HC)) +
         geom_point() +
         geom_line() +
-        geom_hline(yintercept=tmp$hc_crit, color="red", size=2) +
+        geom_hline(yintercept=tmp$hc_crit, color="red", linewidth=2) +
         xlab("Test index (sorted by p-values)") +
         ylab("Higher Criticism statistic") +
         ggtitle(paste0(networks[m1], "-", networks[m2], " HC plot (high direction)")) +

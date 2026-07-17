@@ -10,88 +10,125 @@
 #'
 #' @export
 
+# Test-type specific helper functions
+
+fCOuNT_run_t_one = function(fc_vec, data, form = NULL, var_idx = NULL) {
+
+  mod = t.test(fc_vec)
+  return(list(test_statistic = unname(mod$statistic),
+              p_low = pt(mod$statistic, mod$parameter),
+              p_high = pt(-mod$statistic, mod$parameter)))
+
+}
+
+fCOuNT_run_t_two = function(fc_vec, data, form, var_idx = NULL) {
+
+  data$fc = fc_vec
+  mod = t.test(form, data)
+  return(list(test_statistic = unname(mod$statistic),
+              p_low = pt(mod$statistic, mod$parameter),
+              p_high = pt(-mod$statistic, mod$parameter)))
+
+}
+
+fCOuNT_run_anova = function(fc_vec, data, form, var_idx = NULL) {
+
+  data$fc = fc_vec
+  mod = aov(form, data)
+  return(list(test_statistic = summary(mod)[[1]][["F value"]][var_idx],
+              p_low = summary(mod)[[1]][["Pr(>F)"]][var_idx],
+              p_high = NA))
+
+}
+
+fCOuNT_run_lr = function(fc_vec, data, form, var_idx) {
+
+  data$fc = fc_vec
+  mod = lm(form, data)
+  coefs = coef(summary(mod))
+  tval = coefs[var_idx + 1, 3]
+  return(list(test_statistic = tval,
+              p_low = pt(tval, mod$df.residual),
+              p_high = pt(-tval, mod$df.residual)))
+
+}
+
+fCOuNT_run_mlr = function(fc_vec, data, form, var_idx) {
+
+  data$fc = fc_vec
+  mod = lmer(form, data)
+  coefs = coef(summary(mod))
+  tval = coefs[var_idx + 1, 4]
+  df = coefs[var_idx + 1, 3]
+  return(list(test_statistic = tval,
+              p_low = pt(tval, df),
+              p_high = pt(-tval, df)))
+
+}
+
+fCOuNT_run_tests = function(idx, data, fc, form, var_idx, test_fun, edges) {
+
+  if(idx == 1) { print(test_fun) }
+  # get matrix indices
+  i = edges[idx, 1]
+  j = edges[idx, 2]
+
+  fc_vec = fc[, i, j]
+
+  # require at least half of FC entries to exist (revisit this)
+  if(sum(is.na(fc_vec)) > (length(fc_vec) / 2)) {
+
+    return(data.frame(node1 = i,
+                      node2 = j,
+                      test_statistic = NA,
+                      p_low = NA,
+                      p_high = NA))
+
+  } else {
+
+    tmp = test_fun(fc_vec = fc_vec,
+                   data = data,
+                   form = form,
+                   var_idx = var_idx)
+
+    return(data.frame(node1 = i,
+                      node2 = j,
+                      test_statistic = tmp$test_statistic,
+                      p_low = tmp$p_low,
+                      p_high = tmp$p_high))
+
+  }
+
+}
+
 fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
 
+  test_funs = list("t.one" = fCOuNT_run_t_one,
+                   "t.two" = fCOuNT_run_t_two,
+                   "anova" = fCOuNT_run_anova,
+                   "lr"    = fCOuNT_run_lr,
+                   "mlr"   = fCOuNT_run_mlr)
+
+  test_fun = test_funs[[test_type]]
+
+  # get edge information
   k = dim(fc)[2]
-  K = k * (k - 1) / 2
+  edges = which(upper.tri(matrix(0, k, k)), arr.ind = TRUE)
+  # convert to more natural row-wise ordering
+  edges = edges[order(edges[, 1]), ]
+  K = nrow(edges)
 
-  first_level_results = data.frame(node1=numeric(K),
-                                   node2=numeric(K),
-                                   direction=character(K),
-                                   test_statistic=numeric(K),
-                                   p_low=numeric(K),
-                                   p_high=numeric(K))
-
-  idx = 0
-  for(i in 1 : (k - 1)) {
-    for(j in (i + 1) : k) {
-
-      # fill in table
-      idx = idx + 1
-      first_level_results$node1[idx] = i
-      first_level_results$node2[idx] = j
-
-      # add fc to data
-      data$fc = fc[, i, j]
-
-      # TODO: revisit this criteria
-      if(sum(is.na(data$fc)) > (nrow(data) / 2)) {
-
-        first_level_results$test_statistic[idx] = NA
-        first_level_results$p_low[idx] = NA
-        first_level_results$p_high[idx] = NA
-        next
-
-      }
-
-      # perform tests
-      if(test_type == "t.one") {
-
-        # one sample t test
-        mod = t.test(data$fc)
-        first_level_results$test_statistic[idx] = mod$statistic
-        first_level_results$p_low[idx] = pt(mod$statistic, mod$parameter)
-        first_level_results$p_high[idx] = pt(-mod$statistic, mod$parameter)
-
-      } else if(test_type == "t.two") {
-
-        # two sample t test
-        mod = t.test(form, data)
-        first_level_results$test_statistic[idx] = mod$statistic
-        first_level_results$p_low[idx] = pt(mod$statistic, mod$parameter)
-        first_level_results$p_high[idx] = pt(-mod$statistic, mod$parameter)
-
-      } else if(test_type == "anova") {
-
-        # anova
-        mod = aov(form, data)
-        first_level_results$test_statistic[idx] = summary(mod)[[1]][["F value"]][1]
-        first_level_results$p_low[idx] = summary(mod)[[1]][["Pr(>F)"]][1]
-        first_level_results$p_high[idx] = NA
-
-      } else if(test_type == "lr") {
-
-        # linear regression
-        mod = lm(form, data)
-        coefs = coef(summary(mod))
-        first_level_results$test_statistic[idx] = coefs[var_idx + 1, 3]
-        first_level_results$p_low[idx] = pt(coefs[var_idx + 1, 3], mod$df.residual)
-        first_level_results$p_high[idx] = pt(-coefs[var_idx + 1, 3], mod$df.residual)
-
-      } else if(test_type == "mlr") {
-
-        # multilevel regression
-        mod = lmer(form, data)
-        coefs = coef(summary(mod))
-        first_level_results$test_statistic[idx] = coefs[var_idx + 1, 4]
-        first_level_results$p_low[idx] = pt(coefs[var_idx + 1, 4], coefs[var_idx + 1, 3])
-        first_level_results$p_high[idx] = pt(-coefs[var_idx + 1, 4], coefs[var_idx + 1, 3])
-
-      } else {
-        stop(paste("Test type", test_type, "is not supported!"))
-      }
-    }
-  }
+  first_level_results = lapply(seq_len(K),
+                               function(idx) {
+                                 fCOuNT_run_tests(idx,
+                                                  data,
+                                                  fc,
+                                                  form,
+                                                  var_idx,
+                                                  test_fun,
+                                                  edges) } ) %>%
+    bind_rows() %>%
+    remove_rownames()
 
   return(first_level_results)
 

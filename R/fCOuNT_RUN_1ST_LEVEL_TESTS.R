@@ -68,7 +68,6 @@ fCOuNT_run_mlr = function(fc_vec, data, form, var_idx) {
 
 fCOuNT_run_tests = function(idx, data, fc, form, var_idx, test_fun, edges) {
 
-  if(idx == 1) { print(test_fun) }
   # get matrix indices
   i = edges[idx, 1]
   j = edges[idx, 2]
@@ -103,6 +102,8 @@ fCOuNT_run_tests = function(idx, data, fc, form, var_idx, test_fun, edges) {
 
 fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
 
+  plan(multisession)
+
   test_funs = list("t.one" = fCOuNT_run_t_one,
                    "t.two" = fCOuNT_run_t_two,
                    "anova" = fCOuNT_run_anova,
@@ -118,15 +119,15 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
   edges = edges[order(edges[, 1]), ]
   K = nrow(edges)
 
-  first_level_results = lapply(seq_len(K),
-                               function(idx) {
-                                 fCOuNT_run_tests(idx,
-                                                  data,
-                                                  fc,
-                                                  form,
-                                                  var_idx,
-                                                  test_fun,
-                                                  edges) } ) %>%
+  first_level_results = future_lapply(seq_len(K),
+                                      function(idx) {
+                                        fCOuNT_run_tests(idx,
+                                                          data,
+                                                          fc,
+                                                          form,
+                                                          var_idx,
+                                                          test_fun,
+                                                          edges) } ) %>%
     bind_rows() %>%
     remove_rownames()
 

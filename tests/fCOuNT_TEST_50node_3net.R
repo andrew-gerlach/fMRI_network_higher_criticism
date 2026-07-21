@@ -9,6 +9,8 @@ seed_in = 123
 
 m = length(unique(net_def))
 M = m * (m + 1) / 2
+k = length(net_def)
+K = k * (k - 1) / 2
 
 tmp_in = fCOuNT_GEN_TEST_DATA(n, net_def, mu, tau, seed_in)
 
@@ -19,7 +21,9 @@ tmp_out = fCOuNT(data = tmp_in$data,
                  fc = tmp_in$fc,
                  nsim = 1E6,
                  seed = 135)
-results = data.frame(test=rep("t.one", M * 2)) %>%
+flr = data.frame(test=rep("t.one", K)) %>%
+  cbind(tmp_out$first_level_results)
+slr = data.frame(test=rep("t.one", M * 2)) %>%
   cbind(tmp_out$second_level_results)
 
 ### Two-sample t-test
@@ -30,9 +34,12 @@ tmp_out = fCOuNT(data = tmp_in$data,
                  fc = tmp_in$fc,
                  nsim = 1E6,
                  seed = 135)
-results = data.frame(test=rep("t.two", M * 2)) %>%
+flr = data.frame(test=rep("t.two", K)) %>%
+  cbind(tmp_out$first_level_results) %>%
+  rbind(flr)
+slr = data.frame(test=rep("t.two", M * 2)) %>%
   cbind(tmp_out$second_level_results) %>%
-  rbind(results, .)
+  rbind(slr, .)
 
 ### ANOVA
 tmp_out = fCOuNT(data = tmp_in$data,
@@ -42,9 +49,12 @@ tmp_out = fCOuNT(data = tmp_in$data,
                  fc = tmp_in$fc,
                  nsim = 1E6,
                  seed = 135)
-results = data.frame(test=rep("anova", M * 2)) %>%
+flr = data.frame(test=rep("anova", K)) %>%
+  cbind(tmp_out$first_level_results) %>%
+  rbind(flr)
+slr = data.frame(test=rep("anova", M * 2)) %>%
   cbind(tmp_out$second_level_results) %>%
-  rbind(results, .)
+  rbind(slr, .)
 
 ### Linear regression
 tmp_out = fCOuNT(data = tmp_in$data,
@@ -54,22 +64,25 @@ tmp_out = fCOuNT(data = tmp_in$data,
                  fc = tmp_in$fc,
                  nsim = 1E6,
                  seed = 135)
-results = data.frame(test=rep("lr", M * 2)) %>%
+flr = data.frame(test=rep("lr", K)) %>%
+  cbind(tmp_out$first_level_results) %>%
+  rbind(flr)
+slr = data.frame(test=rep("lr", M * 2)) %>%
   cbind(tmp_out$second_level_results) %>%
-  rbind(results, .)
+  rbind(slr, .)
 
 # results_benchmark = results
 # save(results_benchmark, file="benchmark_50node_3net_01.rdata")
 load("benchmark_50node_3net_01.rdata")
 # for some reason the p value isn't consistent, guessing this is to do with parallelization or inconsistent seed use across machines
-tmp1 = results %>% select(-c(HC, p))
+tmp1 = slr %>% select(-c(HC, p))
 tmp2 = results_benchmark %>% select(-c(HC, p))
 if(!identical(tmp1, tmp2)) {
   stop("Error! Benchmark: 50node, 3net, 01 failed for basic description!!!")
 }
-if(max(abs(results$HC - results_benchmark$HC), na.rm=T) > 1E-12) {
+if(max(abs(slr$HC - results_benchmark$HC), na.rm=T) > 1E-12) {
   stop("Error! Benchmark: 50node, 3net, 01 failed for HC values!!!")
 }
-if(max(abs(results$p - results_benchmark$p), na.rm=T) > 0.01) {
+if(max(abs(slr$p - results_benchmark$p), na.rm=T) > 0.01) {
   stop("Error! Benchmark: 50node, 3net, 01 failed for p values!!!")
 }

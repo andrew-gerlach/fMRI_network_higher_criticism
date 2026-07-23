@@ -34,6 +34,7 @@
 
 fCOuNT = function(data,
                   test_type,
+                  custom_fun = NULL,
                   form = NULL,
                   var = NULL,
                   net_def,
@@ -71,13 +72,11 @@ fCOuNT = function(data,
     stop(paste("Test type", test_type, "is not currently supported"))
   }
   if(test_type == "custom") {
-    if(missing(custom_fun)) {
+    if(is.null(custom_fun)) {
       stop("Must supply custom_fun for 1st level test definitions for test_type custom")
     } else {
       fCOuNT_TEST_CUSTOM_FUN(custom_fun, data, form, var_idx)
     }
-  } else {
-    custom_fun = NULL
   }
 
   # Formula handling

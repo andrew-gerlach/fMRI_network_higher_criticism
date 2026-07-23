@@ -5,9 +5,9 @@
 #'
 #' @param data data table containing subject level variables (string, data.frame, n rows)
 #' @param test_type description of statistical test type (string)
+#' @param custom_fun custom first level test definition (function)
 #' @param form formula for statistical test (string)
 #' @param var variable of interest (string)
-#' @param controls control variables (strings)
 #' @param net_def network definition for nodes (string, data.frame)
 #' @param net_def_col name of column containing network definition (optional, string)
 #' @param fc functional connectivity matrices (optional, 3D array, n x k x k)
@@ -32,7 +32,25 @@
 #'
 #' @export
 
-fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc, fc_col_name, fc_obj_name, mcc, parallel, nodes, k1, emp, nsim, results_plot, font_size, label_height, seed) {
+fCOuNT = function(data,
+                  test_type,
+                  form = NULL,
+                  var = NULL,
+                  net_def,
+                  net_def_col = NULL,
+                  fc,
+                  fc_col_name,
+                  fc_obj_name = NULL,
+                  mcc = "fdr",
+                  parallel = T,
+                  nodes = NULL,
+                  k1 = NULL,
+                  emp = NULL,
+                  nsim = NULL,
+                  results_plot,
+                  font_size = NULL,
+                  label_height = NULL,
+                  seed) {
 
   # Load required packages
   fCOuNT_LOAD_PACKAGES()
@@ -42,8 +60,6 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   if(!missing(seed)) { set.seed(seed) }
 
   # Set parallel options
-  if(missing(parallel)) { parallel = T }
-  if(missing(nodes)) { nodes = NULL }
   parallel_opts = fCOuNT_GEN_PARALLEL_OPTIONS(parallel, nodes)
 
   # Read in data file if needed
@@ -51,21 +67,26 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
 
   # Check that test type is supported
   test_type = tolower(test_type)
-  if(!(test_type %in% c("t.one", "t.two", "anova", "lr", "ancova"))) {
+  if(!(test_type %in% c("t.one", "t.two", "anova", "lr", "custom"))) {
     stop(paste("Test type", test_type, "is not currently supported"))
+  }
+  if(test_type == "custom") {
+    if(missing(custom_fun)) {
+      stop("Must supply custom_fun for 1st level test definitions for test_type custom")
+    } else {
+      fCOuNT_TEST_CUSTOM_FUN(custom_fun, data, form, var_idx)
+    }
+  } else {
+    custom_fun = NULL
   }
 
   # Formula handling
-  if(missing(form)) { form = NULL }
-  if(missing(var)) { var = NULL }
-  if(missing(controls)) { controls = NULL }
-  tmp = fCOuNT_GEN_FORMULA(data, test_type, form, var, controls)
+  tmp = fCOuNT_GEN_FORMULA(data, test_type, form, var)
   form = tmp$form
   var_idx = tmp$var_idx
   # TODO: add ability to define reference level for groups for clearer directionality
 
   ### Step 1a load fc data into array if needed
-  if(missing(fc_obj_name)) {fc_obj_name = NULL }
   if(missing(fc)) {
     if(missing(fc_col_name)) {
       stop("Must provide FC array or column name with paths to FC matrix files")
@@ -75,35 +96,25 @@ fCOuNT = function(data, test_type, form, var, controls, net_def, net_def_col, fc
   }
 
   # Higher Criticism options
-  if(missing(k1)) { k1 = NULL }
-  if(missing(emp)) { emp = NULL }
-  if(missing(nsim)) { nsim = NULL }
   hc_opts = fCOuNT_GEN_HC_OPTIONS(k1, emp, nsim)
 
   # Multiple comparisons correction options
-  if(missing(mcc)) {
-    mcc = "fdr"
-  } else {
-    mcc = tolower(mcc)
-    if(!(mcc %in% c("fdr", "bonferroni", "none"))) {
-      stop("Invalid multiple comparisons correction option")
-    }
+  mcc = tolower(mcc)
+  if(!(mcc %in% c("fdr", "bonferroni", "none"))) {
+    stop("Invalid multiple comparisons correction option")
   }
 
   # Plot options
   if(missing(results_plot)) { results_plot = T }
   if(results_plot) {
-    if(missing(font_size)) { font_size = NULL }
-    if(missing(label_height)) { label_height = NULL }
     plot_opts = fCOuNT_GEN_PLOT_OPTIONS(mcc, font_size, label_height)
   }
 
   # Load network definitions
-  if(missing(net_def_col)) { net_def_col = NULL }
   net_def = fCOuNT_RETRIEVE_NET_DEF(net_def, net_def_col)
 
   # Call main driver routine
-  tmp = fCOuNT_MAIN(data, test_type, form, var_idx, net_def, fc, results_plot, plot_opts, parallel_opts, mcc, hc_opts)
+  tmp = fCOuNT_MAIN(data, test_type, custom_fun, form, var_idx, net_def, fc, results_plot, plot_opts, parallel_opts, mcc, hc_opts)
 
   return(list(first_level_results=tmp$first_level_results,
               second_level_results=tmp$second_level_results,

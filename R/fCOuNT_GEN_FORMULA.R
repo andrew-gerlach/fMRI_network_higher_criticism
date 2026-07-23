@@ -1,17 +1,16 @@
-#' Formula generation and checking
+#' Formula checking and variable of interest identification
 #'
 #' @param data data frame containing all variables in formula
 #' @param test_type type of statistical test (string)
 #' @param form formula for statistical test (string or formula)
 #' @param var variable of interest (string)
-#' @param controls additional control variables of no interest to include in statistical test (string, vector)
 #'
-#' @return form formula for statistial test (formula)
-#' @return var_idx index of variable of interset in model output (integer)
+#' @return form formula for statistical test (formula)
+#' @return var_idx index of variable of interest in model output (integer)
 #'
 #' @export
 
-fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
+fCOuNT_GEN_FORMULA = function(data, test_type, form, var) {
 
   # flag for presence of interaction
   interaction = F
@@ -19,9 +18,9 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
   # Construct formula if needed
   if(is.null(form)) {
 
-    if(test_type != "t.one") {
-
-      # TODO: need more logic here to construct formula if var and controls supplied but not form
+    if(!(test_type %in% c("t.one", "custom"))) {
+      
+      stop("A formula is required for 1st level tests unless using one-sided t-tests or a custom function")
 
     }
 
@@ -29,11 +28,6 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 
     # Convert text to formula
     if(is.character(form)) { form = as.formula(form) }
-
-    # Issue warnings if formula and controls were defined
-    if(!is.null(controls)) {
-      warning("Control variables being ignored since a formula was supplied!")
-    }
 
     # format formula as characters and extract x and y components
     tmp = paste(format(form), collapse="") %>%
@@ -79,9 +73,9 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 
   # Determine index for variable of interest
 
-  if(test_type == "t.one") {
+  if(is.null(form)) {
 
-    # ignore variable of interest for a one-sided t-test
+    # no var_idx without formula
     var_idx = NULL
 
   } else {
@@ -129,13 +123,17 @@ fCOuNT_GEN_FORMULA = function(data, test_type, form, var, controls) {
 
     # check for categorical variables with more than two levels and increment as needed
     if(var_idx > 1) {
+      
       for(col in x[1 : (var_idx - 1)]) {
+        
         tmp = data %>% pull(col)
         if(is.factor(tmp)) {
           n = length(levels(tmp))
           var_idx = var_idx + n - 2
         }
+        
       }
+      
     }
 
   }

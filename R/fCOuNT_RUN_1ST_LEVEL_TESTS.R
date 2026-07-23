@@ -100,15 +100,16 @@ fCOuNT_run_tests = function(idx, data, fc, form, var_idx, test_fun, edges) {
 
 }
 
-fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx) {
+fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, custom_fun = NULL) {
 
   plan(multisession)
 
-  test_funs = list("t.one" = fCOuNT_run_t_one,
-                   "t.two" = fCOuNT_run_t_two,
-                   "anova" = fCOuNT_run_anova,
-                   "lr"    = fCOuNT_run_lr,
-                   "mlr"   = fCOuNT_run_mlr)
+  test_funs = list("t.one"  = fCOuNT_run_t_one,
+                   "t.two"  = fCOuNT_run_t_two,
+                   "anova"  = fCOuNT_run_anova,
+                   "lr"     = fCOuNT_run_lr,
+                   "mlr"    = fCOuNT_run_mlr,
+                   "custom" = custom_fun)
 
   test_fun = test_funs[[test_type]]
 

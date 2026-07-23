@@ -5,6 +5,7 @@
 #'
 #' @param data data table containing subject level variables (data.frame, n rows)
 #' @param test_type description of statistical test type (string)
+#' @param custom_fun custom first level test definition (function)
 #' @param form formula for statistical test (formula)
 #' @param var_idx index of variable of interest in statistical test (integer)
 #' @param net_def network definition for nodes (vector)
@@ -22,10 +23,10 @@
 #'
 #' @export
 
-fCOuNT_MAIN = function(data, test_type, form, var_idx, net_def, fc, results_plot, plot_opts, parallel_opts, mcc, hc_opts) {
+fCOuNT_MAIN = function(data, test_type, custom_fun, form, var_idx, net_def, fc, results_plot, plot_opts, parallel_opts, mcc, hc_opts) {
 
   # Step 1 run first level tests
-  first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx)
+  first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx, custom_fun)
 
   # Step 2 calculate network level HC statistics
 

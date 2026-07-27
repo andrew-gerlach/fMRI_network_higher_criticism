@@ -7,6 +7,7 @@
 fCOuNT_MAIN(
   data,
   test_type,
+  custom_fun,
   form,
   var_idx,
   net_def,
@@ -22,6 +23,8 @@ fCOuNT_MAIN(
 \item{data}{data table containing subject level variables (data.frame, n rows)}
 
 \item{test_type}{description of statistical test type (string)}
+
+\item{custom_fun}{custom first level test definition (function)}
 
 \item{form}{formula for statistical test (formula)}
 

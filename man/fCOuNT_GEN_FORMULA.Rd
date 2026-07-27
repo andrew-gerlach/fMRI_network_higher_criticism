@@ -2,9 +2,9 @@
 % Please edit documentation in R/fCOuNT_GEN_FORMULA.R
 \name{fCOuNT_GEN_FORMULA}
 \alias{fCOuNT_GEN_FORMULA}
-\title{Formula generation and checking}
+\title{Formula checking and variable of interest identification}
 \usage{
-fCOuNT_GEN_FORMULA(data, test_type, form, var, controls)
+fCOuNT_GEN_FORMULA(data, test_type, form, var)
 }
 \arguments{
 \item{data}{data frame containing all variables in formula}
@@ -14,14 +14,12 @@ fCOuNT_GEN_FORMULA(data, test_type, form, var, controls)
 \item{form}{formula for statistical test (string or formula)}
 
 \item{var}{variable of interest (string)}
-
-\item{controls}{additional control variables of no interest to include in statistical test (string, vector)}
 }
 \value{
-form formula for statistial test (formula)
+form formula for statistical test (formula)
 
-var_idx index of variable of interset in model output (integer)
+var_idx index of variable of interest in model output (integer)
 }
 \description{
-Formula generation and checking
+Formula checking and variable of interest identification
 }

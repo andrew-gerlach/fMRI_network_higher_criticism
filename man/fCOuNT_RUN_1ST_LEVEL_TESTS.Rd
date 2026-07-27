@@ -4,7 +4,14 @@
 \alias{fCOuNT_RUN_1ST_LEVEL_TESTS}
 \title{fCOuNT_RUN_1st_LEVEL_TESTS}
 \usage{
-fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx)
+fCOuNT_RUN_1ST_LEVEL_TESTS(
+  data,
+  fc,
+  test_type,
+  form,
+  var_idx,
+  custom_fun = NULL
+)
 }
 \arguments{
 \item{data}{subject information/subject number (data.frame, n rows)}

@@ -10,7 +10,77 @@
 #'
 #' @export
 
-# Test-type specific helper functions
+fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, custom_fun = NULL) {
+
+  plan(multisession)
+
+  test_funs = list("t.one"  = fCOuNT_run_t_one,
+                   "t.two"  = fCOuNT_run_t_two,
+                   "anova"  = fCOuNT_run_anova,
+                   "lr"     = fCOuNT_run_lr,
+                   "mlr"    = fCOuNT_run_mlr,
+                   "custom" = custom_fun)
+
+  test_fun = test_funs[[test_type]]
+
+  # get edge information
+  k = dim(fc)[2]
+  edges = which(upper.tri(matrix(0, k, k)), arr.ind = TRUE)
+  # convert to more natural row-wise ordering
+  edges = edges[order(edges[, 1]), ]
+  K = nrow(edges)
+
+  first_level_results = future_lapply(seq_len(K),
+                                      function(idx) {
+                                        fCOuNT_run_tests(idx,
+                                                          data,
+                                                          fc,
+                                                          form,
+                                                          var_idx,
+                                                          test_fun,
+                                                          edges) } ) %>%
+    bind_rows() %>%
+    remove_rownames()
+
+  return(first_level_results)
+
+}
+
+fCOuNT_run_tests = function(idx, data, fc, form, var_idx, test_fun, edges) {
+
+  # get matrix indices
+  i = edges[idx, 1]
+  j = edges[idx, 2]
+
+  fc_vec = fc[, i, j]
+
+  # require at least half of FC entries to exist (revisit this)
+  if(sum(is.na(fc_vec)) > (length(fc_vec) / 2)) {
+
+    return(data.frame(node1 = i,
+                      node2 = j,
+                      test_statistic = NA,
+                      p_low = NA,
+                      p_high = NA))
+
+  } else {
+
+    tmp = test_fun(fc_vec = fc_vec,
+                   data = data,
+                   form = form,
+                   var_idx = var_idx)
+
+    return(data.frame(node1 = i,
+                      node2 = j,
+                      test_statistic = tmp$test_statistic,
+                      p_low = tmp$p_low,
+                      p_high = tmp$p_high))
+
+  }
+
+}
+
+### Test-type specific helper functions
 
 fCOuNT_run_t_one = function(fc_vec, data, form = NULL, var_idx = NULL) {
 
@@ -66,72 +136,3 @@ fCOuNT_run_mlr = function(fc_vec, data, form, var_idx) {
 
 }
 
-fCOuNT_run_tests = function(idx, data, fc, form, var_idx, test_fun, edges) {
-
-  # get matrix indices
-  i = edges[idx, 1]
-  j = edges[idx, 2]
-
-  fc_vec = fc[, i, j]
-
-  # require at least half of FC entries to exist (revisit this)
-  if(sum(is.na(fc_vec)) > (length(fc_vec) / 2)) {
-
-    return(data.frame(node1 = i,
-                      node2 = j,
-                      test_statistic = NA,
-                      p_low = NA,
-                      p_high = NA))
-
-  } else {
-
-    tmp = test_fun(fc_vec = fc_vec,
-                   data = data,
-                   form = form,
-                   var_idx = var_idx)
-
-    return(data.frame(node1 = i,
-                      node2 = j,
-                      test_statistic = tmp$test_statistic,
-                      p_low = tmp$p_low,
-                      p_high = tmp$p_high))
-
-  }
-
-}
-
-fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, custom_fun = NULL) {
-
-  plan(multisession)
-
-  test_funs = list("t.one"  = fCOuNT_run_t_one,
-                   "t.two"  = fCOuNT_run_t_two,
-                   "anova"  = fCOuNT_run_anova,
-                   "lr"     = fCOuNT_run_lr,
-                   "mlr"    = fCOuNT_run_mlr,
-                   "custom" = custom_fun)
-
-  test_fun = test_funs[[test_type]]
-
-  # get edge information
-  k = dim(fc)[2]
-  edges = which(upper.tri(matrix(0, k, k)), arr.ind = TRUE)
-  # convert to more natural row-wise ordering
-  edges = edges[order(edges[, 1]), ]
-  K = nrow(edges)
-
-  first_level_results = future_lapply(seq_len(K),
-                                      function(idx) {
-                                        fCOuNT_run_tests(idx,
-                                                          data,
-                                                          fc,
-                                                          form,
-                                                          var_idx,
-                                                          test_fun,
-                                                          edges) } ) %>%
-    bind_rows() %>%
-    remove_rownames()
-
-  return(first_level_results)
-
-}

@@ -7,23 +7,23 @@
 fCOuNT(
   data,
   test_type,
-  form,
-  var,
-  controls,
+  custom_fun = NULL,
+  form = NULL,
+  var = NULL,
   net_def,
-  net_def_col,
+  net_def_col = NULL,
   fc,
   fc_col_name,
-  fc_obj_name,
-  mcc,
-  parallel,
-  nodes,
-  k1,
-  emp,
-  nsim,
+  fc_obj_name = NULL,
+  mcc = "fdr",
+  parallel = T,
+  nodes = NULL,
+  k1 = NULL,
+  emp = NULL,
+  nsim = NULL,
   results_plot,
-  font_size,
-  label_height,
+  font_size = NULL,
+  label_height = NULL,
   seed
 )
 }
@@ -32,11 +32,11 @@ fCOuNT(
 
 \item{test_type}{description of statistical test type (string)}
 
+\item{custom_fun}{custom first level test definition (function)}
+
 \item{form}{formula for statistical test (string)}
 
 \item{var}{variable of interest (string)}
-
-\item{controls}{control variables (strings)}
 
 \item{net_def}{network definition for nodes (string, data.frame)}
 

@@ -19,7 +19,7 @@
 #' @return first_level_results table of first level test results for verification
 #' @return second_level_results table of second level test results for primary inference
 #' @return qc_plots list of quality control plots for verifying distribution of p-values and visualizing HC calculation (4 per network pair)
-#' @return results_plots chord diagram summarizing second level test results
+#' @return results_plot chord diagram summarizing second level test results
 #'
 #' @export
 
@@ -36,14 +36,14 @@ fCOuNT_MAIN = function(data, test_type, custom_fun, form, var_idx, net_def, fc, 
 
   # Step 3 summarize results graphically
   if(results_plot) {
-    results_plots = fCOuNT_PLOT_RESULTS(second_level_results, plot_opts)
+    results_plot = fCOuNT_PLOT_RESULTS(second_level_results, plot_opts)
   } else {
-    results_plots= NULL
+    results_plot = NULL
   }
 
   return(list(first_level_results=first_level_results,
               second_level_results=second_level_results,
               qc_plots=qc_plots,
-              results_plots=results_plots))
+              results_plot=results_plot))
 
 }

@@ -91,6 +91,7 @@ fCOuNT_PLOT_RESULTS = function(second_level_results, plot_opts) {
   # If direction is not present, plot with purple
   if(all(is.na(second_level_results$p_high[second_level_results$direction == "high"]))) {
     plot_mat[plot_mat == "blue"] = "purple"
+  }
 
   rownames(plot_mat) = networks
   colnames(plot_mat) = networks

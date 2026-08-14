@@ -36,7 +36,7 @@ fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp, parallel_opts) {
 
   } else {
 
-    plan(multisession)
+    plan(multisession, workers = parallel_opts$nodes)
     hc_vals = unlist(future_lapply(seq_len(n_sim),
                                    function(i) {
                                      fCOuNT_HIGHER_CRITICISM(p = runif(n_test),

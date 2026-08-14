@@ -45,6 +45,8 @@ fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp, parallel_opts) {
                                        max(na.rm = TRUE)},
                                    future.seed = TRUE))
 
+    plan(sequential)
+
   }
 
   p = rep(NA, length(hc))

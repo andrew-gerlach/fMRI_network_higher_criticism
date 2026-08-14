@@ -26,7 +26,7 @@
 fCOuNT_MAIN = function(data, test_type, custom_fun, form, var_idx, net_def, fc, results_plot, plot_opts, parallel_opts, mcc, hc_opts) {
 
   # Step 1 run first level tests
-  first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx, custom_fun)
+  first_level_results = fCOuNT_RUN_1ST_LEVEL_TESTS(data, fc, test_type, form, var_idx, parallel_opts, custom_fun)
 
   # Step 2 calculate network level HC statistics
 

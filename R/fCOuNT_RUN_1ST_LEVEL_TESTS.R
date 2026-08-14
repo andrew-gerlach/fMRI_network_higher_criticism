@@ -5,14 +5,14 @@
 #' @param test_type first level test type (t.one, t.two, lr, anova)(string)
 #' @param form formula for fist level test (string)
 #' @param var_idx variable of interest (string)
+#' @param parallel_opts options for running in parallel
+#' @param custom_fun custom function for running first level tests
 #'
 #' @return first_level_results first level summary results (p-values, test statistic, node connections)
 #'
 #' @export
 
-fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, custom_fun = NULL) {
-
-  plan(multisession)
+fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, parallel_opts, custom_fun = NULL) {
 
   test_funs = list("t.one"  = fCOuNT_run_t_one,
                    "t.two"  = fCOuNT_run_t_two,
@@ -29,19 +29,44 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, custom
   # convert to more natural row-wise ordering
   edges = edges[order(edges[, 1]), ]
   K = nrow(edges)
+  
+  if(parallel_opts$parallel) {
+    
+    # fc is typically too large to copy to too many workers, so capping it
+    workers = min(c(4, parallel_opts$nodes))
+    plan(multisession, workers = workers)
+  
+    first_level_results = future_lapply(seq_len(K),
+                                        function(idx) {
+                                          fCOuNT_run_tests(idx,
+                                                           data,
+                                                           fc,
+                                                           form,
+                                                           var_idx,
+                                                           test_fun,
+                                                           edges) },
+                                        future.seed = T) %>%
+      bind_rows() %>%
+      remove_rownames()
+  
+    plan(sequential)
 
-  first_level_results = future_lapply(seq_len(K),
-                                      function(idx) {
-                                        fCOuNT_run_tests(idx,
-                                                          data,
-                                                          fc,
-                                                          form,
-                                                          var_idx,
-                                                          test_fun,
-                                                          edges) } ) %>%
-    bind_rows() %>%
-    remove_rownames()
-
+  } else {
+    
+    first_level_results = lapply(seq_len(K),
+                                 function(idx) {
+                                   fCOuNT_run_tests(idx,
+                                                    data,
+                                                    fc,
+                                                    form,
+                                                    var_idx,
+                                                    test_fun,
+                                                    edges) }) %>%
+      bind_rows() %>%
+      remove_rownames()
+    
+  }
+    
   return(first_level_results)
 
 }

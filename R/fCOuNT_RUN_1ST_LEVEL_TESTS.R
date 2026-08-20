@@ -33,7 +33,7 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, parall
   if(parallel_opts$parallel) {
     
     # fc is typically too large to copy to too many workers, so capping it
-    workers = min(c(4, parallel_opts$nodes, parallel_opts$max_nodes / 4))
+    workers = min(c(4, parallel_opts$nodes, floor(parallel_opts$max_nodes / 4)))
     plan(multisession, workers = workers)
   
     first_level_results = future_lapply(seq_len(K),

@@ -26,7 +26,8 @@ fCOuNT_GEN_PARALLEL_OPTIONS = function(parallel, nodes) {
     }
 
     if(is.null(nodes)) {
-      parallel_opts$nodes = detectCores()
+      # Default to using 75% of available cores
+      parallel_opts$nodes = max(floor(3 * detectCores() / 4), 1)
     } else {
       parallel_opts$nodes = nodes
     }

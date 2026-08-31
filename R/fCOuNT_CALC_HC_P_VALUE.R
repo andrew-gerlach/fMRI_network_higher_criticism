@@ -29,19 +29,12 @@ fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp, parallel_opts) {
 
   } else {
 
-    # determine number of nodes to used for parallel computation
-    if(is.null(parallel_opts$nodes)) {
-      nodes = detectCores()
-    } else {
-      nodes = parallel_opts$nodes
-    }
-
       hc_vals = unlist(mclapply(1:n_sim, function(i) {
         fCOuNT_HIGHER_CRITICISM(p=runif(n_test),
                                 k1=k1,
                                 emp=emp) %>%
           max(na.rm=T)
-        }, mc.cores = nodes))
+        }, mc.cores = parallel_opts$nodes))
   }
 
   p = rep(NA, length(hc))

@@ -29,30 +29,7 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, parall
   # convert to more natural row-wise ordering
   edges = edges[order(edges[, 1]), ]
   K = nrow(edges)
-  
-  if(parallel_opts$parallel) {
-    
-    # fc is typically too large to copy to too many workers, so capping it
-    workers = min(c(4, parallel_opts$nodes, floor(parallel_opts$max_nodes / 4)))
-    plan(multisession, workers = workers)
-  
-    first_level_results = future_lapply(seq_len(K),
-                                        function(idx) {
-                                          fCOuNT_run_tests(idx,
-                                                           data,
-                                                           fc,
-                                                           form,
-                                                           var_idx,
-                                                           test_fun,
-                                                           edges) },
-                                        future.seed = T) %>%
-      bind_rows() %>%
-      remove_rownames()
-  
-    plan(sequential)
 
-  } else {
-    
     first_level_results = lapply(seq_len(K),
                                  function(idx) {
                                    fCOuNT_run_tests(idx,
@@ -64,9 +41,7 @@ fCOuNT_RUN_1ST_LEVEL_TESTS = function(data, fc, test_type, form, var_idx, parall
                                                     edges) }) %>%
       bind_rows() %>%
       remove_rownames()
-    
-  }
-    
+
   return(first_level_results)
 
 }

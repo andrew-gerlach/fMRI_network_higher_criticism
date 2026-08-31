@@ -16,37 +16,32 @@
 
 fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp, parallel_opts) {
 
-  hc_fun = function(i) {
-
-    fCOuNT_HIGHER_CRITICISM(p = runif(n_test),
-                            k1 = k1,
-                            emp = emp) %>%
-      max(na.rm = TRUE)
-
-  }
-
   if(!parallel_opts$parallel) {
 
-    hc_vals = unlist(lapply(seq_len(n_sim),
-                            function(i) {
-                              fCOuNT_HIGHER_CRITICISM(p = runif(n_test),
-                                                      k1 = k1,
-                                                      emp = emp) %>%
-                                max(na.rm = TRUE)} ))
+    # serial computation
+    hc_vals = rep(NA, n_sim)
+    for(i in 1 : n_sim) {
+      hc_vals[i] = fCOuNT_HIGHER_CRITICISM(p=runif(n_test),
+                                           k1=k1,
+                                           emp=emp) %>%
+        max(na.rm=T)
+    }
 
   } else {
 
-    plan(multisession, workers = parallel_opts$nodes)
-    hc_vals = unlist(future_lapply(seq_len(n_sim),
-                                   function(i) {
-                                     fCOuNT_HIGHER_CRITICISM(p = runif(n_test),
-                                                             k1 = k1,
-                                                             emp = emp) %>%
-                                       max(na.rm = TRUE)},
-                                   future.seed = TRUE))
+    # determine number of nodes to used for parallel computation
+    if(is.null(parallel_opts$nodes)) {
+      nodes = detectCores()
+    } else {
+      nodes = parallel_opts$nodes
+    }
 
-    plan(sequential)
-
+      hc_vals = unlist(mclapply(1:n_sim, function(i) {
+        fCOuNT_HIGHER_CRITICISM(p=runif(n_test),
+                                k1=k1,
+                                emp=emp) %>%
+          max(na.rm=T)
+        }, mc.cores = nodes))
   }
 
   p = rep(NA, length(hc))
@@ -57,3 +52,4 @@ fCOuNT_CALC_HC_P_VALUE = function(hc, n_test, n_sim, k1, emp, parallel_opts) {
   return(list(p=p, hc_crit=quantile(hc_vals, 0.95)))
 
 }
+

@@ -11,7 +11,7 @@ fCOuNT_LOAD_PACKAGES = function() {
                "readxl",
                "R.matlab",
                "xfun",
-               "future.apply",
+               "parallel",
                "circlize")
 
   for(p in packages) {
